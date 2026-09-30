@@ -129,18 +129,29 @@ button{font:inherit;color:inherit}
 .ref.active{border-color:var(--sel);box-shadow:0 0 0 1px var(--sel) inset}
 .ref header{display:flex;justify-content:space-between;align-items:baseline;gap:6px;margin-bottom:6px}
 .ref h4{margin:0;font-size:14px} .ref header span{font-size:12px;color:var(--ink-soft)}
-.sock{width:100%;height:auto;display:block;margin-bottom:8px}
-.sock .base{fill:#2E343A;stroke:#1C2126;stroke-width:1.5}
-.sock .strip{fill:#3B434B;stroke:#262C31}
-.sock .body{fill:#E7ECEF;stroke:#9AA6AF;stroke-width:1.2}
-.sock .vent{stroke:#B7C1C8;stroke-width:1.4}
-.sock .bname{font-size:17px;font-weight:700;fill:#2A3540;text-anchor:middle}
-.sock .bsub{font-size:9.5px;fill:#5F6D78;text-anchor:middle}
-.sock .scr{fill:#C8CED3;stroke:#6F7A83;stroke-width:1}
-.sock .slot{stroke:#6F7A83;stroke-width:1.6}
-.sock .num{font-size:11px;font-weight:700;fill:#E9EEF2;text-anchor:middle}
-.sock .hl .scr{fill:#9CC0FF;stroke:#3B7BFF;stroke-width:2.6}
-.sock .hl .num{fill:#8FB8FF}
+.sock{width:100%;height:auto;display:block;margin:2px 0 6px;color:var(--ink)}
+.sock text{font-family:inherit}
+.sock .base{fill:var(--part);stroke:var(--part-edge);stroke-width:1.6}
+.sock .hole{fill:var(--paper);stroke:var(--part-edge);stroke-width:1.4}
+.sock .frame{fill:none;stroke:var(--part-edge);stroke-width:1.2}
+.sock .pn circle{fill:var(--surface);stroke:var(--ink);stroke-width:1.4}
+.sock .pn text{font-size:12px;font-weight:700;text-anchor:middle;fill:var(--ink)}
+.sock .pn.hl circle{fill:var(--sel);stroke:var(--sel)}
+.sock .pn.hl text{fill:#fff}
+.sock .it path,.sock .it line,.sock .it circle.c{fill:none;stroke:var(--c);stroke-width:1.8;stroke-linejoin:round}
+.sock .it .t{fill:var(--paper);stroke:var(--c);stroke-width:1.4}
+.sock .it text{fill:var(--c);font-size:10px;font-weight:700}
+.sock .it.on path,.sock .it.on line,.sock .it.on circle.c{stroke-width:3.4}
+.sock .it.on text{font-size:11px}
+.sock .ink{stroke:var(--ink);fill:none;stroke-width:1.4}
+.sock .sub{font-size:9.5px;fill:var(--ink-soft);text-anchor:middle}
+.sock .num{font-size:12px;font-weight:700;fill:var(--ink);text-anchor:middle}
+.strip{display:grid;gap:3px;margin:0 0 8px;font-size:11.5px;font-weight:700;text-align:center}
+.strip span{border:1px solid var(--line);border-radius:4px;padding:1px 0;background:var(--paper)}
+.strip span.hl{background:var(--sel);color:#fff;border-color:var(--sel)}
+.strip-cap{font-size:11.5px;color:var(--ink-soft);margin:0 0 3px}
+.ref .rnote{font-size:12px;color:var(--ink-soft);margin:4px 2px 0}
+.ref li i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:1px}
 .ref ul{list-style:none;margin:0;padding:0;font-size:13px}
 .ref li{padding:2px 6px;border-radius:5px}
 .ref li b{font-weight:700;margin-right:5px}
@@ -193,6 +204,16 @@ button{font:inherit;color:inherit}
 #lay .lt.c{text-anchor:middle}
 #lay .lt.s{font-size:24px}
 #lay .dim{stroke:var(--ink-soft);stroke-width:1.6;fill:none}
+#lay .lscr{fill:var(--screw);stroke:var(--ink);stroke-width:1.4}
+#lay .lscr.off{opacity:.3}
+#lay .lscr.on{fill:#C8CED3;stroke:#3A444D}
+#lay .ltl{fill:var(--ink);font-size:12px;font-weight:600}
+#lay .ltt{fill:var(--ink);font-size:6.5px;font-weight:600;text-anchor:middle}
+#lay .wires{pointer-events:none}
+#lay .lw{fill:none;stroke-width:2.6;stroke-linejoin:round;stroke-linecap:round}
+#lay .lw.t-R{stroke:var(--w-R)} #lay .lw.t-S{stroke:var(--w-S)} #lay .lw.t-T{stroke:var(--w-T)} #lay .lw.t-PE{stroke:var(--w-PE)} #lay .lw.t-ctrl{stroke:var(--w-ctrl)}
+#lay .lw.sel{stroke-width:4}
+#lay .lw.fresh{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 1.1s ease-out forwards}
 #lay .dimt{fill:var(--ink-soft);font-size:24px;text-anchor:middle}
 .cond{cursor:pointer}
 .cond .tube{fill:none;stroke-linejoin:round;stroke-linecap:butt}
@@ -286,12 +307,12 @@ const EB1 = EA+10, EB2 = EA+50;
 /* ================= 내부결선도 (도면 기준) ================= */
 const R12=[[1,2,3,4,5,6],[7,8,9,10,11,12]], R8=[[6,5,4,3],[7,8,1,2]];
 const REF = {
-  EOCR:{title:'EOCR', kind:'12핀', rows:R12, items:[['전원',6,12],['주회로 R',1,7],['주회로 S',2,8],['주회로 T',3,9],['b접점 (정상 시 닫힘)',10,4],['a접점 (트립 시 닫힘)',10,5]]},
+  EOCR:{title:'EOCR', kind:'12핀', rows:R12, items:[['전원',6,12],['주회로 R',1,7],['주회로 S',2,8],['주회로 T',3,9],['b접점 (정상 시 닫힘)',10,4],['a접점 (트립 시 닫힘)',10,5]], note:'⑩과 ⑪은 기구 안에서 서로 이어져 있어요.'},
   MC:{title:'MC1 · MC2 전자접촉기', kind:'12핀', rows:R12, items:[['코일',6,12],['주접점 R',1,7],['주접점 S',2,8],['주접점 T',3,9],['보조 a접점',4,10],['보조 b접점',5,11]]},
   X:{title:'X 릴레이', kind:'8핀', rows:R8, items:[['코일',2,7],['a접점',1,3],['b접점',1,4],['a접점',8,6],['b접점',8,5]]},
   T:{title:'T 타이머', kind:'8핀', rows:R8, items:[['코일',2,7],['순시 a접점',1,3],['한시 a접점',8,6],['한시 b접점',8,5]]},
   FR:{title:'FR 플리커 릴레이', kind:'8핀', rows:R8, items:[['코일 (전원)',2,7],['a접점',8,6],['b접점',8,5]]},
-  FLS:{title:'FLS 플로트리스 스위치', kind:'8핀', rows:R8, items:[['전원',5,6],['a접점',4,3],['전극 E1',7],['전극 E2',8],['전극 E3',1]]}
+  FLS:{title:'FLS 플로트리스 스위치', kind:'8핀', rows:R8, items:[['전원',5,6],['a접점',4,3],['b접점',4,2],['전극 E1',7],['전극 E2',8],['전극 E3',1]]}
 };
 const REF_OF = {EOCR:'EOCR',MC1:'MC',MC2:'MC',X:'X',T:'T',FR:'FR',FLS:'FLS'};
 const COMP_MAX = {EOCR:12,MC1:12,MC2:12,X:8,T:8,FR:8,FLS:8};
@@ -475,7 +496,7 @@ const DUCT_NAME={1:'PE 전선관',2:'플렉시블 전선관',3:'케이블'};
 const W_PB=[['TB5 PB0(N)','PB함 PB0 입력 N','ctrl'],['TB5 공통(CN)','PB함 공통 CN','ctrl'],['TB5 PB1(O)','PB함 PB1 출력 O','ctrl']];
 const W_SS=[['TB5 S/S(공)','SS함 공통','ctrl'],['TB5 S/S(M)','SS함 M(수동)','ctrl'],['TB5 S/S(A)','SS함 A(자동)','ctrl']];
 const DUCTS=[
-  {id:'d_tb1',no:3,from:'TB1 (전원)',to:'제어함 TB5',pts:[[750,-40],[750,450]],wires:[['TB1 L1','TB5 L1','R'],['TB1 L2','TB5 L2','S'],['TB1 L3','TB5 L3','T'],['TB1 PE','TB5 PE','PE']],note:'전원 3상과 접지를 케이블 하나로 제어함에 넣습니다.'},
+  {id:'d_tb1',no:3,from:'TB1 (전원)',to:'제어함 TB5',pts:[[750,450],[750,-40]],wires:[['TB1 L1','TB5 L1','R'],['TB1 L2','TB5 L2','S'],['TB1 L3','TB5 L3','T'],['TB1 PE','TB5 PE','PE']],note:'전원 3상과 접지를 케이블 하나로 제어함에 넣습니다.'},
   {id:'d_jp',no:2,from:'제어함 TB5',to:'J박스',pts:[[650,450],[650,50],[332,50]],wires:[...W_PB,...W_SS],note:'PB함과 SS함으로 갈 6가닥을 한 관에 넣어 J박스까지 보냅니다.'},
   {id:'d_pb',no:2,from:'J박스',to:'PB함 (PB1·PB0)',pts:[[268,50],[0,50],[0,450]],wires:W_PB,note:'J박스에서 3가닥을 PB함으로 나눕니다. PB함 안에서 PB0은 N과 CN 사이, PB1은 CN과 O 사이에 연결돼요.'},
   {id:'d_ss',no:1,from:'J박스',to:'SS함 (SS·CAP)',pts:[[300,82],[300,450]],wires:W_SS,note:'J박스에서 3가닥을 셀렉터 스위치로 보냅니다.'},
@@ -483,7 +504,7 @@ const DUCTS=[
   {id:'d_yb',no:2,from:'제어함 TB6',to:'경보함 (YL·BZ)',pts:[[600,870],[600,1270],[200,1270],[200,870]],wires:[['TB6 YL(L1)','YL L1','ctrl'],['TB6 BZ(L1)','BZ L1','ctrl'],['TB6 공통(L2)','YL·BZ 공통 L2','ctrl']],note:'YL과 BZ는 공통 L2 한 가닥을 같이 씁니다.'},
   {id:'d_tb3',no:1,from:'제어함 TB6',to:'TB3 (전동기 M2)',pts:[[700,870],[700,1370],[160,1370]],wires:[['TB6 U2','TB3 U2','R'],['TB6 V2','TB3 V2','S'],['TB6 W2','TB3 W2','T'],['TB6 PE','TB3 PE','PE']],note:'M2 전동기로 가는 3상과 접지입니다.'},
   {id:'d_tb4',no:2,from:'제어함 TB6',to:'TB4 (FLS 전극)',pts:[[800,870],[800,1410]],wires:[['TB6 E1','TB4 E1','ctrl'],['TB6 E2','TB4 E2','ctrl'],['TB6 E3','TB4 E3','ctrl']],note:'FLS 전극 E1, E2, E3을 수조 쪽 단자대로 보냅니다.'},
-  {id:'d_tb2',no:1,from:'제어함 TB6',to:'TB2 (전동기 M1)',pts:[[900,870],[900,1270],[1335,1270]],wires:[['TB6 U1','TB2 U1','R'],['TB6 V1','TB2 V1','S'],['TB6 W1','TB2 W1','T'],['TB6 PE','TB2 PE','PE']],note:'M1 전동기로 가는 3상과 접지입니다.'}
+  {id:'d_tb2',no:1,from:'제어함 TB6',to:'TB2 (전동기 M1)',pts:[[900,870],[900,1270],[1330,1270]],wires:[['TB6 U1','TB2 U1','R'],['TB6 V1','TB2 V1','S'],['TB6 W1','TB2 W1','T'],['TB6 PE','TB2 PE','PE']],note:'M1 전동기로 가는 3상과 접지입니다.'}
 ];
 const DUCT_WIRES=DUCTS.reduce((n,d)=>n+d.wires.length,0);
 function offsetPts(pts,k){
@@ -503,30 +524,91 @@ function slashes(d){
 }
 function dimH(y,xs){ let o=`<path class="dim" d="M${xs[0]} ${y} H${xs[xs.length-1]}"/>`; xs.forEach((x,i)=>{ o+=`<path class="dim" d="M${x} ${y-12} V${y+12}"/>`; if(i) o+=`<text class="dimt" x="${(x+xs[i-1])/2}" y="${y-10}">${x-xs[i-1]}</text>`; }); return o; }
 function dimV(x,ys){ let o=`<path class="dim" d="M${x} ${ys[0]} V${ys[ys.length-1]}"/>`; ys.forEach((y,i)=>{ o+=`<path class="dim" d="M${x-12} ${y} H${x+12}"/>`; if(i) o+=`<text class="dimt" x="${x-18}" y="${(y+ys[i-1])/2+8}" style="text-anchor:end">${y-ys[i-1]}</text>`; }); return o; }
+/* 배치도 위 단자 좌표 (mm) */
+const LT={};
+TB5.forEach((c,i)=>{ if(c) LT['TB5-'+c[2]]=[623+12.7*(i+.5),492,c[0]+(c[1]?' '+c[1]:'')]; });
+TB6.forEach((c,i)=>{ if(c) LT['TB6-'+c[2]]=[623+12.7*(i+.5),828,c[0]+(c[1]?' '+c[1]:'')]; });
+Object.assign(LT,{
+  'PB1-CN':[6,500,'CN'],'PB1-O':[30,500,'O'],'PB0-N':[18,575,'N'],'PB0-CN':[42,575,'CN'],
+  'SS-C':[298,500,'공'],'SS-M':[320,500,'M'],'SS-A':[342,500,'A'],
+  'RL-1':[1256,500,'L1'],'RL-2':[1280,500,'L2'],'GL-1':[1268,575,'L1'],'GL-2':[1292,575,'L2'],
+  'YL-1':[218,750,'L1'],'YL-2':[242,750,'L2'],'BZ-1':[206,825,'L1'],'BZ-2':[230,825,'L2']
+});
+['L1','L2','L3','PE'].forEach((k,i)=>LT['TB1-'+k]=[711+26*i,-72,k]);
+['U1','V1','W1','PE'].forEach((k,i)=>LT['TB2-'+k]=[1360,1231+26*i,k]);
+['U2','V2','W2','PE'].forEach((k,i)=>LT['TB3-'+k]=[130,1331+26*i,k]);
+['E1','E2','E3'].forEach((k,i)=>LT['TB4-'+k]=[774+26*i,1440,k]);
+const EXTW=[
+  ['TB5-L1','TB1-L1','R',['d_tb1']],['TB5-L2','TB1-L2','S',['d_tb1']],['TB5-L3','TB1-L3','T',['d_tb1']],['TB5-PE','TB1-PE','PE',['d_tb1']],
+  ['TB5-N','PB0-N','ctrl',['d_jp','d_pb']],['TB5-CN','PB1-CN','ctrl',['d_jp','d_pb']],['TB5-O','PB1-O','ctrl',['d_jp','d_pb']],
+  ['TB5-SSC','SS-C','ctrl',['d_jp','d_ss']],['TB5-SSM','SS-M','ctrl',['d_jp','d_ss']],['TB5-SSA','SS-A','ctrl',['d_jp','d_ss']],
+  ['TB5-RL','RL-1','ctrl',['d_rg']],['TB5-GL','GL-1','ctrl',['d_rg']],['TB5-CM','RL-2','ctrl',['d_rg']],
+  ['TB6-YL','YL-1','ctrl',['d_yb']],['TB6-BZ','BZ-1','ctrl',['d_yb']],['TB6-CM','BZ-2','ctrl',['d_yb']],
+  ['TB6-U2','TB3-U2','R',['d_tb3']],['TB6-V2','TB3-V2','S',['d_tb3']],['TB6-W2','TB3-W2','T',['d_tb3']],['TB6-PE2','TB3-PE','PE',['d_tb3']],
+  ['TB6-E1','TB4-E1','ctrl',['d_tb4']],['TB6-E2','TB4-E2','ctrl',['d_tb4']],['TB6-E3','TB4-E3','ctrl',['d_tb4']],
+  ['TB6-U1','TB2-U1','R',['d_tb2']],['TB6-V1','TB2-V1','S',['d_tb2']],['TB6-W1','TB2-W1','T',['d_tb2']],['TB6-PE1','TB2-PE','PE',['d_tb2']]
+];
+const JUMPS=[
+  {duct:'d_pb',pts:[[6,500],[6,538],[42,538],[42,575]],note:'PB함 안 CN 점퍼'},
+  {duct:'d_rg',pts:[[1280,500],[1280,538],[1292,538],[1292,575]],note:'램프 공통 L2 점퍼'},
+  {duct:'d_yb',pts:[[242,750],[242,790],[230,790],[230,825]],note:'YL·BZ 공통 L2 점퍼'}
+];
+const LANE0={d_tb2:20};
+const EXT_SEGS=(function(){
+  const cnt={}, slot=[];
+  EXTW.forEach((w,i)=>{ slot[i]={}; w[3].forEach(c=>{ slot[i][c]=cnt[c]||0; cnt[c]=(cnt[c]||0)+1; }); });
+  const dir=(a,b)=>[Math.sign(b[0]-a[0]),Math.sign(b[1]-a[1])];
+  return EXTW.map((w,i)=>{
+    const segs=[]; let prev=null;
+    w[3].forEach((cid,ci)=>{
+      const d=DUCTS.find(x=>x.id===cid), j=slot[i][cid], m=cnt[cid], k=(j-(m-1)/2)*5;
+      const op=offsetPts(d.pts,k); let pts=[];
+      if(ci===0){ const T=LT[w[0]], d0=dir(d.pts[0],d.pts[1]), L=(LANE0[cid]||8)+j*3.5, ly=op[0][1]-d0[1]*L;
+        pts=[[T[0],T[1]],[T[0],ly],[op[0][0],ly],...op]; }
+      else { const S=op[0], d0=dir(d.pts[0],d.pts[1]);
+        pts = d0[0]===0 ? [prev,[S[0],prev[1]],...op] : [prev,[300,prev[1]],[300,S[1]],...op]; }
+      if(ci===w[3].length-1){ const n=d.pts.length, dn=dir(d.pts[n-2],d.pts[n-1]), Pn=op[op.length-1], L=8+j*5, D=LT[w[1]];
+        const Q=[Pn[0]+dn[0]*L,Pn[1]+dn[1]*L];
+        pts.push(Q, dn[0]===0?[D[0],Q[1]]:[Q[0],D[1]], [D[0],D[1]]); }
+      prev=pts[pts.length-1];
+      segs.push({cid,pts,type:w[2]});
+    });
+    return segs;
+  });
+})();
 function layoutStatic(){
   const T=(x,y,t,c='lt c')=>`<text class="${c}" x="${x}" y="${y}">${t}</text>`;
+  const scr=(id)=>{ const [x,y,l]=LT[id]; return `<circle class="lscr" cx="${x}" cy="${y}" r="5.5"/>`; };
+  const tl=(id,dx,dy,anchor='middle')=>{ const [x,y,l]=LT[id]; return `<text class="ltl" x="${x+dx}" y="${y+dy}" text-anchor="${anchor}">${l}</text>`; };
   let o='';
   o+=dimH(-120,[0,300,650,750,850,1250])+dimV(-105,[0,50,450,870,1270,1370])+dimH(1540,[200,600,700,800,900,1300]);
-  o+=`<rect class="bx" x="550" y="450" width="400" height="420"/>`+T(750,540,'제어함')+T(750,580,'(400×420)','lt c s');
-  o+=`<path class="dim" d="M735 660 H765 M750 645 V675"/>`;
-  o+=T(590,705,'① PE 전선관','lt s')+T(590,740,'② 플렉시블 전선관','lt s')+T(590,775,'③ 케이블','lt s');
-  o+=`<rect class="bx2" x="610" y="470" width="280" height="22" rx="3" opacity=".5"/>`+T(750,487,'TB5','lt c s" opacity=".6')+`<rect class="bx2" x="610" y="828" width="280" height="22" rx="3" opacity=".5"/>`;
-  o+=`<circle class="bx" cx="300" cy="50" r="32"/>`+T(300,61,'J');
-  const box=(cx,y,h,items,kind)=>{ let b=`<rect class="bx" x="${cx-45}" y="${y}" width="90" height="${h}" rx="6"/>`;
-    items.forEach((it,i)=>{ const cy=y+38+i*62;
-      if(kind==='pb') b+=`<circle class="bx2" cx="${cx-14}" cy="${cy}" r="15"/><circle class="bx2" cx="${cx-14}" cy="${cy}" r="8"/>`;
-      if(kind==='lamp') b+=`<circle class="bx2" cx="${cx-14}" cy="${cy}" r="15"/><path class="bx2" d="M${cx-24.6} ${cy-10.6} L${cx-3.4} ${cy+10.6} M${cx-24.6} ${cy+10.6} L${cx-3.4} ${cy-10.6}"/>`;
-      if(kind==='ss') b+= i===0 ? `<circle class="bx2" cx="${cx-14}" cy="${cy}" r="15"/><path class="bx2" d="M${cx-24} ${cy+8} L${cx-4} ${cy-8}"/>` : `<circle class="bx2" cx="${cx-14}" cy="${cy}" r="15"/><circle cx="${cx-14}" cy="${cy}" r="9" fill="var(--ink)"/>`;
-      if(kind==='bz') b+= i===0 ? `<circle class="bx2" cx="${cx-14}" cy="${cy}" r="15"/><path class="bx2" d="M${cx-24.6} ${cy-10.6} L${cx-3.4} ${cy+10.6} M${cx-24.6} ${cy+10.6} L${cx-3.4} ${cy-10.6}"/>` : `<circle class="bx2" cx="${cx-14}" cy="${cy}" r="15"/><circle class="bx2" cx="${cx-14}" cy="${cy}" r="5"/><circle class="bx2" cx="${cx-14}" cy="${cy}" r="10" stroke-dasharray="3 3"/>`;
-      b+=`<text class="lt s" x="${cx+60}" y="${cy+9}">${it}</text>`; });
+  o+=`<rect class="bx" x="550" y="450" width="400" height="420"/>`+T(750,565,'제어함')+T(750,600,'(400×420)','lt c s');
+  o+=`<path class="dim" d="M735 640 H765 M750 625 V655"/>`;
+  o+=T(590,695,'① PE 전선관','lt s')+T(590,728,'② 플렉시블 전선관','lt s')+T(590,761,'③ 케이블','lt s');
+  // TB5 · TB6 (실제 단자 위치)
+  const tbStrip=(arr,y,name,sy,ly)=>{ let r=`<rect class="bx" x="623" y="${y}" width="254" height="30" rx="2" style="stroke-width:2"/>`;
+    arr.forEach((c,i)=>{ const x=623+12.7*i; if(i) r+=`<path class="bx2" d="M${x} ${y} V${y+30}" style="stroke-width:.8"/>`; const cx=x+6.35;
+      r+=`<circle class="lscr${c?'':' off'}" cx="${cx}" cy="${sy}" r="4"/>`; if(c) r+=`<text class="ltt" x="${cx}" y="${ly}">${c[1]||c[0]}</text>`; });
+    return r+`<text class="ltl" x="615" y="${y+19}" text-anchor="end" style="font-weight:700">${name}</text>`; };
+  o+=tbStrip(TB5,485,'TB5',492,510)+tbStrip(TB6,805,'TB6',828,815);
+  o+=`<circle class="bx" cx="300" cy="50" r="32"/>`+`<text class="lt c" x="300" y="6">J</text>`;
+  const box=(cx,y,items,kind,terms)=>{ let b=`<rect class="bx" x="${cx-60}" y="${y}" width="120" height="170" rx="6"/>`;
+    items.forEach((it,i)=>{ const cy=y+50+i*75, dx=cx-28;
+      if(kind==='pb') b+=`<circle class="bx2" cx="${dx}" cy="${cy}" r="17"/><circle class="bx2" cx="${dx}" cy="${cy}" r="9"/>`;
+      if(kind==='lamp'||(kind==='bz'&&i===0)) b+=`<circle class="bx2" cx="${dx}" cy="${cy}" r="17"/><path class="bx2" d="M${dx-12} ${cy-12} L${dx+12} ${cy+12} M${dx-12} ${cy+12} L${dx+12} ${cy-12}"/>`;
+      if(kind==='bz'&&i===1) b+=`<circle class="bx2" cx="${dx}" cy="${cy}" r="17"/><circle class="bx2" cx="${dx}" cy="${cy}" r="6"/><circle class="bx2" cx="${dx}" cy="${cy}" r="11" stroke-dasharray="3 3"/>`;
+      if(kind==='ss') b+= i===0 ? `<circle class="bx2" cx="${dx}" cy="${cy}" r="17"/><path class="bx2" d="M${dx-11} ${cy+9} L${dx+11} ${cy-9}"/>` : `<circle class="bx2" cx="${dx}" cy="${cy}" r="17"/><circle cx="${dx}" cy="${cy}" r="10" fill="var(--ink)"/>`;
+      b+=`<text class="lt s" x="${cx+70}" y="${cy+9}">${it}</text>`; });
+    terms.forEach(id=>{ b+=scr(id)+tl(id,0,19); });
     return b; };
-  o+=box(0,450,140,['PB1','PB0'],'pb');
-  o+=box(300,450,140,['SS','CAP'],'ss')+`<text class="lt s" x="262" y="440">M</text><text class="lt s" x="312" y="440">A</text>`;
-  o+=box(1250,450,140,['RL','GL'],'lamp');
-  o+=box(200,730,140,['YL','BZ'],'bz');
-  const tbH=(cx,cy,l,lx,ly)=>`<rect class="bx" x="${cx-55}" y="${cy-15}" width="110" height="30" rx="4"/><path class="bx2" d="M${cx-40} ${cy} H${cx+40}"/>`+T(lx,ly,l);
-  const tbV=(cx,cy,l,lx,ly)=>`<rect class="bx" x="${cx-15}" y="${cy-55}" width="30" height="110" rx="4"/><path class="bx2" d="M${cx} ${cy-40} V${cy+40}"/>`+T(lx,ly,l);
-  o+=tbH(750,-55,'TB1',750,-80)+tbV(1350,1270,'TB2',1420,1282)+tbV(145,1370,'TB3',80,1382)+tbH(800,1425,'TB4',905,1436);
+  o+=box(0,450,['PB1','PB0'],'pb',['PB1-CN','PB1-O','PB0-N','PB0-CN']);
+  o+=box(300,450,['SS','CAP'],'ss',['SS-C','SS-M','SS-A']);
+  o+=box(1250,450,['RL','GL'],'lamp',['RL-1','RL-2','GL-1','GL-2']);
+  o+=box(200,700,['YL','BZ'],'bz',['YL-1','YL-2','BZ-1','BZ-2']);
+  o+=`<rect class="bx" x="680" y="-100" width="140" height="60" rx="4"/>`+['L1','L2','L3','PE'].map(k=>scr('TB1-'+k)+tl('TB1-'+k,0,-10)).join('')+`<text class="lt" x="668" y="-56" text-anchor="end">TB1</text>`;
+  o+=`<rect class="bx" x="1330" y="1200" width="50" height="140" rx="4"/>`+['U1','V1','W1','PE'].map(k=>scr('TB2-'+k)+tl('TB2-'+k,12,4,'start')).join('')+T(1355,1188,'TB2');
+  o+=`<rect class="bx" x="110" y="1300" width="50" height="140" rx="4"/>`+['U2','V2','W2','PE'].map(k=>scr('TB3-'+k)+tl('TB3-'+k,-12,4,'end')).join('')+T(135,1288,'TB3');
+  o+=`<rect class="bx" x="735" y="1410" width="130" height="50" rx="4"/>`+['E1','E2','E3'].map(k=>scr('TB4-'+k)+tl('TB4-'+k,0,-10)).join('')+`<text class="lt" x="878" y="1446">TB4</text>`;
   return o;
 }
 const LAY_STATIC=layoutStatic();
@@ -662,27 +744,105 @@ function hintFor(id){
   const extra = same.length>1 ? ` 이 기구에는 ${kind}이 ${same.map(it=>circ(it[1])+'–'+circ(it[2])).join(', ')} 두 개 있으니, 도면에서 공통 번호를 보고 골라요.` : '';
   return `${r.title}의 ${kind}입니다. 내부결선도에서 찾아 두 번호를 적으세요.${extra}`;
 }
+const CL={coil:'#D2453A',a:'#2F6FD6',b:'#D9822B',main:'var(--ink)',e:'#2E9A4A'};
+function itemColor(name){ if(/코일|전원/.test(name)) return CL.coil; if(/b접점/.test(name)) return CL.b; if(/a접점/.test(name)) return CL.a; if(/전극/.test(name)) return CL.e; return CL.main; }
+function contactH(x,y,type,c){ // 가로 접점 (x: 중심)
+  let o=`<circle class="t" cx="${x-12}" cy="${y}" r="2.6"/><circle class="t" cx="${x+12}" cy="${y}" r="2.6"/>`;
+  if(type[type.length-1]==='a') o+=`<line x1="${x-12}" y1="${y}" x2="${x+10}" y2="${y-9}"/>`;
+  else o+=`<line x1="${x+12}" y1="${y}" x2="${x+12}" y2="${y+7}"/><line x1="${x-12}" y1="${y}" x2="${x+15}" y2="${y+6}"/>`;
+  if(type[0]==='t') o+=`<path d="M${x-6} ${y-13} q6 -9 12 0"/>`;
+  return o;
+}
+function contactV(x,y1,y2,type){ // 세로 접점
+  const m=(y1+y2)/2; let o=`<line x1="${x}" y1="${y1}" x2="${x}" y2="${m-12}"/><line x1="${x}" y1="${m+12}" x2="${x}" y2="${y2}"/>`;
+  if(type==='a') o+=`<line x1="${x}" y1="${m+12}" x2="${x+10}" y2="${m-10}"/>`;
+  else o+=`<line x1="${x}" y1="${m-12}" x2="${x-9}" y2="${m-12}"/><line x1="${x}" y1="${m+12}" x2="${x-8}" y2="${m-15}"/>`;
+  return o+`<circle class="t" cx="${x}" cy="${m-12}" r="2.4"/><circle class="t" cx="${x}" cy="${m+12}" r="2.4"/>`;
+}
+const P8={4:[-22,-52],5:[22,-52],3:[-52,-16],6:[52,-16],2:[-52,22],7:[52,22],1:[-22,54],8:[22,54]};
+const DRAW8={
+  X:{coil:1,L:{com:1,to:[[4,'b','b접점'],[3,'a','a접점']]},R:{com:8,to:[[5,'b','b접점'],[6,'a','a접점']]}},
+  T:{coil:1,L:{com:1,to:[[3,'a','순시 a']]},R:{com:8,to:[[5,'tb','한시 b'],[6,'ta','한시 a']]}},
+  FR:{coil:1,R:{com:8,to:[[5,'b','b접점'],[6,'a','a접점']]}},
+  FLS:{fls:1,L:{com:4,top:1,to:[[3,'a','a접점'],[2,'b','b접점']]}}
+};
+function draw8(k,on,hl){
+  const cx=140,cy=102, P=p=>[cx+P8[p][0],cy+P8[p][1]], D=DRAW8[k];
+  const G=(pins,c,body)=>`<g class="it${on(pins)?' on':''}" data-it="${pins.join(',')}" style="--c:${c}">${body}</g>`;
+  let o=`<circle class="base" cx="${cx}" cy="${cy}" r="76"/><circle class="hole" cx="${cx}" cy="${cy}" r="15"/><rect class="hole" x="${cx-4}" y="${cy+11}" width="8" height="8" rx="1"/>`;
+  const side=(g,dir)=>{
+    const bx = dir>0 ? 262 : 18, kx = dir>0 ? 232 : 48;
+    const [px,py]=P(g.com); let bus='';
+    const ys=g.to.map(t=>P(t[0])[1]);
+    if(g.top){ bus=`M${px} ${py} V14 H${bx} V${Math.max(...ys)}`; }
+    else { const cross = dir>0 ? P(7)[0] : P(2)[0];
+      bus = dir>0 ? `M${px} ${py} V182 H${cross-6} a6 6 0 0 1 12 0 H${bx} V${Math.min(...ys)}` : `M${px} ${py} V182 H${cross+6} a6 6 0 0 0 -12 0 H${bx} V${Math.min(...ys)}`; }
+    let out=''; 
+    g.to.forEach(([p,type,lab])=>{ const [x,y]=P(p), c=type.endsWith('b')?CL.b:CL.a;
+      out+=G([g.com,p],c,`<path d="${bus}"/><path d="M${x} ${y} H${kx-12*dir}"/><path d="M${kx+12*dir} ${y} H${bx}"/>`+contactH(kx,y,type,c)+`<text x="${kx}" y="${y-(type[0]==='t'?18:13)}" text-anchor="middle">${lab}</text>`); });
+    return out;
+  };
+  if(D.coil){ const [x2,y2]=P(2),[x7,y7]=P(7);
+    o+=G([2,7],CL.coil,`<path d="M${x2} ${y2} V210 M${x7} ${y7} V210"/><path d="M${x2+4} 202 H${x7-4} M${x2+10} 198 l-6 4 6 4 M${x7-10} 198 l6 4 -6 4"/><text x="${cx}" y="196" text-anchor="middle">코일 AC 220V</text>`); }
+  if(D.L) o+=side(D.L,-1);
+  if(D.R) o+=side(D.R,1);
+  if(D.fls){ const [x5,y5]=P(5),[x6,y6]=P(6),[x7,y7]=P(7),[x8,y8]=P(8),[x1,y1]=P(1);
+    o+=G([5,6],CL.coil,`<path d="M${x5} ${y5} H228 M${x6} ${y6} H228"/><circle class="t" cx="228" cy="${y5}" r="2.4"/><circle class="t" cx="228" cy="${y6}" r="2.4"/><path d="M238 ${y5+2} V${y6-2} M234 ${y5+8} l4 -6 4 6 M234 ${y6-8} l4 6 4 -6"/><text x="246" y="${(y5+y6)/2-2}">AC</text><text x="246" y="${(y5+y6)/2+10}">220V</text>`);
+    o+=`<rect x="266" y="108" width="30" height="100" rx="3" class="frame" stroke-dasharray="3 3"/>`;
+    o+=G([7],CL.e,`<path d="M${x7} ${y7} H266"/><text x="270" y="${y7+4}">E1</text>`);
+    o+=G([8],CL.e,`<path d="M${x8} ${y8} H266"/><text x="270" y="${y8+4}">E2</text>`);
+    o+=G([1],CL.e,`<path d="M${x1} ${y1} V196 H266 M${x1} 196 V204 M${x1-9} 204 H${x1+9} M${x1-6} 208 H${x1+6} M${x1-3} 212 H${x1+3}"/><text x="270" y="200">E3</text>`);
+  }
+  Object.keys(P8).forEach(p=>{ const [x,y]=P(+p); o+=`<g class="pn${hl.has(+p)?' hl':''}" data-p="${p}"><circle cx="${x}" cy="${y}" r="11"/><text x="${x}" y="${y+4}">${p}</text></g>`; });
+  return `<svg class="sock" viewBox="0 0 300 220" aria-hidden="true">${o}</svg>`;
+}
+const DRAW12={
+  MC:{top:['L1','L2','L3','a1','b1','A1'],bot:['U','V','W','a2','b2','A2'],cols:['m','m','m','a','b','c']},
+  EOCR:{top:['L1','L2','L3','96','98','A1'],bot:['U','V','W','95','97','A2'],cols:['e','e','e','b','a','c']}
+};
+function draw12(k,on,hl){
+  const D=DRAW12[k], X=i=>36+44*i, y1=52, y2=176;
+  const G=(pins,c,body)=>`<g class="it${on(pins)?' on':''}" data-it="${pins.join(',')}" style="--c:${c}">${body}</g>`;
+  let o=`<rect class="frame" x="8" y="4" width="284" height="220" rx="4"/>`;
+  D.cols.forEach((t,i)=>{ const x=X(i), pt=i+1, pb=i+7;
+    let body='', c=CL.main;
+    if(t==='m'){ body=contactV(x,y1,y2,'a'); }
+    if(t==='e'){ body=`<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}"/>`; }
+    if(t==='a'){ c=CL.a; body=contactV(x,y1,y2,'a'); }
+    if(t==='b'){ c=CL.b; body=contactV(x,y1,y2,'b'); }
+    if(t==='c'){ c=CL.coil; body=`<line x1="${x}" y1="${y1}" x2="${x}" y2="96"/><line x1="${x}" y1="132" x2="${x}" y2="${y2}"/><circle class="c" cx="${x}" cy="114" r="18"/><text x="${x}" y="118" text-anchor="middle">전원</text>`; }
+    if(k==='EOCR' && (t==='a'||t==='b')){
+      const bx = t==='b' ? x-4.5 : x+15;
+      body=`<line x1="${x}" y1="${y1}" x2="${x}" y2="96"/><line x1="${x}" y1="132" x2="${x}" y2="${y2}"/>`
+        +`<circle class="t" cx="${x}" cy="100" r="4.5"/><circle class="t" cx="${x}" cy="128" r="4.5"/>`
+        +`<line x1="${bx}" y1="90" x2="${bx}" y2="138"/>`
+        +`<path d="M${bx-6} 108 l12 12 M${bx+6} 108 l-12 12"/>`;
+    }
+    let pins=[pt,pb];
+    if(k==='EOCR' && t==='b') pins=[10,4];
+    if(k==='EOCR' && t==='a'){ pins=[10,5]; body+=`<path d="M${X(3)} 162 H${x}"/><circle cx="${X(3)}" cy="162" r="3" style="fill:var(--c)"/><circle cx="${x}" cy="162" r="3" style="fill:var(--c)"/>`; }
+    o+=G(pins,c,body);
+    o+=`<text class="sub" x="${x}" y="20">(${D.top[i]})</text><text class="sub" x="${x}" y="214">(${D.bot[i]})</text>`;
+  });
+  if(k==='MC') o+=`<path class="ink" d="M${X(0)+5} 114 H${X(2)+8}" stroke-dasharray="4 3"/>`;
+  if(k==='EOCR') o+=`<rect x="${X(0)-18}" y="100" width="${X(2)-X(0)+36}" height="28" rx="2" style="fill:var(--surface);stroke:var(--ink);stroke-width:1.4"/><text class="num" x="${X(1)}" y="119">EOCR</text>`;
+  for(let i=0;i<6;i++){ [[i+1,36],[i+7,192]].forEach(([p,y])=>{ o+=`<g class="pn${hl.has(p)?' hl':''}" data-p="${p}"><circle cx="${X(i)}" cy="${y}" r="11"/><text x="${X(i)}" y="${y+4}">${p}</text></g>`; }); }
+  return `<svg class="sock" viewBox="0 0 300 228" aria-hidden="true">${o}</svg>`;
+}
 function refCard(k){
   const r=REF[k];
   const active=!!(sel.slot && REF_OF[EL[sel.slot.id].comp]===k);
   const ans=active?EL[sel.slot.id].ans:[];
-  const hl=new Set(ans);
-  const n=r.rows[0].length, six=n===6, W=six?250:180, x0=six?32:34, dx=six?(W-64)/5:(W-68)/3;
-  let sv=`<rect class="base" x="4" y="4" width="${W-8}" height="172" rx="9"/>`;
-  sv+=`<rect class="strip" x="12" y="20" width="${W-24}" height="30" rx="4"/><rect class="strip" x="12" y="130" width="${W-24}" height="30" rx="4"/>`;
-  sv+=`<rect class="body" x="20" y="58" width="${W-40}" height="64" rx="6"/>`;
-  for(let i=0;i<5;i++) sv+=`<line class="vent" x1="${W-50}" y1="${68+i*6}" x2="${W-30}" y2="${68+i*6}"/>`;
-  sv+=`<text class="bname" x="${W/2}" y="94">${k==='MC'?'MC':k}</text><text class="bsub" x="${W/2}" y="110">${r.kind} · AC 220V</text>`;
-  r.rows.forEach((row,ri)=>row.forEach((p,i)=>{
-    const cx=x0+dx*i, cy=ri?145:35, ny=ri?171:15;
-    sv+=`<g class="${hl.has(p)?'hl':''}" data-p="${p}"><circle class="scr" cx="${cx}" cy="${cy}" r="9"/><line class="slot" x1="${cx-5}" y1="${cy-5}" x2="${cx+5}" y2="${cy+5}"/><text class="num" x="${cx}" y="${ny+4}">${p}</text></g>`;
-  }));
+  const hl=new Set(ans), key=[...ans].sort((a,b)=>a-b).join();
+  const on=pins=> active && (pins.length===1 ? hl.has(pins[0]) && ans.length===3 : [...pins].sort((a,b)=>a-b).join()===key);
+  const svg = r.kind==='12핀' ? draw12(k,on,hl) : draw8(k,on,hl);
+  const cols=r.rows[0].length;
+  const strip=`<p class="strip-cap">소켓 단자 배치 (윗줄 / 아랫줄)</p><div class="strip" style="grid-template-columns:repeat(${cols},1fr)">${r.rows.flat().map(p=>`<span data-p="${p}" class="${hl.has(p)?'hl':''}">${p}</span>`).join('')}</div>`;
   const li=r.items.map(it=>{
     const pins=it.slice(1);
-    const on=active && pins.every(p=>hl.has(p)) && (pins.length===1 || [...ans].sort().join()===[...pins].sort().join());
-    return `<li data-pins="${pins.join(',')}" class="${on?'on':''}"><b>${pins.map(circ).join('–')}</b>${it[0]}</li>`;
+    return `<li data-pins="${pins.join(',')}" class="${on(pins)?'on':''}"><i style="background:${itemColor(it[0])}"></i><b>${pins.map(circ).join('–')}</b>${it[0]}</li>`;
   }).join('');
-  return `<article class="ref${active?' active':''}" data-ref="${k}"><header><h4>${r.title}</h4><span>${r.kind} 소켓</span></header><svg class="sock" viewBox="0 0 ${W} 180" aria-hidden="true">${sv}</svg><ul>${li}</ul></article>`;
+  return `<article class="ref${active?' active':''}" data-ref="${k}"><header><h4>${r.title}</h4><span>${r.kind}</span></header>${svg}${strip}<ul>${li}</ul>${r.note?`<p class="rnote">${r.note}</p>`:''}</article>`;
 }
 function renderSidePins(){
   let now;
@@ -748,19 +908,26 @@ function renderSideWire(){
 
 /* ================= 렌더링: 3단계 배관 ================= */
 function renderLayout(){
-  let o=LAY_STATIC;
-  o+=DUCTS.map(d=>{
-    const m=d.wires.length, on=ducted.has(d.id), wd=m*5+(d.no===3?6:12);
-    let c=`cond n${d.no}`; if(sel.duct===d.id) c+=' sel'; if(sel.dhint===d.id) c+=' hint'; if(sel.dfresh===d.id) c+=' fresh';
+  let o=LAY_STATIC, tubes='', wires='', hits='';
+  DUCTS.forEach(d=>{
+    const m=d.wires.length, wd=m*5+(d.no===3?6:12);
+    let c=`cond n${d.no}`; if(sel.duct===d.id) c+=' sel'; if(sel.dhint===d.id) c+=' hint';
     const pd=polyD(d.pts);
     let g=`<path class="tube" d="${pd}" stroke-width="${wd}"/>`;
     if(d.no===2) g+=`<path class="rib" d="${pd}" stroke-width="${wd}"/>`;
-    g+=`<path class="inner" d="${pd}" stroke-width="${wd-(d.no===3?4:8)}"/>`;
-    if(on) d.wires.forEach((w,j)=>{ const k=(j-(m-1)/2)*5; g+=`<path class="wr t-${w[2]}" d="${polyD(offsetPts(d.pts,k))}" pathLength="1"/>`; });
-    g+=slashes(d)+`<path class="hitd" d="${pd}"/>`;
-    return `<g class="${c}" data-duct="${d.id}">${g}</g>`;
-  }).join('');
-  $('#lay').innerHTML=o;
+    g+=`<path class="inner" d="${pd}" stroke-width="${wd-(d.no===3?4:8)}"/>`+slashes(d);
+    tubes+=`<g class="${c}">${g}</g>`;
+    hits+=`<g class="cond" data-duct="${d.id}"><path class="hitd" d="${pd}"/></g>`;
+  });
+  EXT_SEGS.forEach(segs=>segs.forEach(sg=>{ if(!ducted.has(sg.cid)) return;
+    const c=`lw t-${sg.type}${sel.duct===sg.cid?' sel':''}${sel.dfresh===sg.cid?' fresh':''}`;
+    wires+=`<path class="${c}" d="${polyD(sg.pts)}" pathLength="1"/>`; }));
+  JUMPS.forEach(j=>{ if(ducted.has(j.duct)) wires+=`<path class="lw t-ctrl${sel.duct===j.duct?' sel':''}${sel.dfresh===j.duct?' fresh':''}" d="${polyD(j.pts)}" pathLength="1"/>`; });
+  // 단자 나사는 전선 위에 다시 그려 실제 체결처럼 보이게
+  let screws='';
+  EXTW.forEach(w=>{ const segs=EXT_SEGS[EXTW.indexOf(w)]; if(!ducted.has(segs[0].cid) && !ducted.has(segs[segs.length-1].cid)) return;
+    [w[0],w[1]].forEach(id=>{ const [x,y]=LT[id]; screws+=`<circle class="lscr on" cx="${x}" cy="${y}" r="${id.startsWith('TB5')||id.startsWith('TB6')?4:5.5}"/>`; }); });
+  $('#lay').innerHTML=o+tubes+`<g class="wires">${wires}</g>`+screws+hits;
 }
 function renderSideDuct(){
   const list=DUCTS.map(d=>`<li><button data-duct="${d.id}" class="${sel.duct===d.id?'sel':''}"><span class="no">${circ(d.no)}</span><span>${d.from} → ${d.to}</span><span class="cnt2">${d.wires.length}가닥${ducted.has(d.id)?' <span class="done">✓</span>':''}</span></button></li>`).join('');
@@ -875,15 +1042,21 @@ $('#side').addEventListener('click',e=>{
   if (b.dataset.act==='unduct'){ ducted.delete(sel.duct); render(); }
   if (b.dataset.act==='ductit'){ ducted.add(sel.duct); sel.dfresh=sel.duct; render(); }
 });
+function refHi(card,pins){
+  const ps=pins.map(String), key=[...pins].sort((a,b)=>a-b).join();
+  card.querySelectorAll('[data-p]').forEach(g=>g.classList.toggle('hl',ps.includes(g.dataset.p)));
+  card.querySelectorAll('.it').forEach(g=>{ const it=g.dataset.it.split(',').map(Number); g.classList.toggle('on', pins.length>0 && (it.length===1 ? pins.includes(it[0]) && pins.length===1 : [...it].sort((a,b)=>a-b).join()===key)); });
+}
 $('#side').addEventListener('mouseover',e=>{
   const li=e.target.closest('.ref li'); if(!li) return;
-  const ps=li.dataset.pins.split(','); li.closest('.ref').querySelectorAll('.sock g').forEach(g=>g.classList.toggle('hl',ps.includes(g.dataset.p)));
+  refHi(li.closest('.ref'), li.dataset.pins.split(',').map(Number));
 });
 $('#side').addEventListener('mouseout',e=>{
   const li=e.target.closest('.ref li'); if(!li) return;
   const card=li.closest('.ref'), k=card.dataset.ref;
-  const keep=new Set(sel.slot && REF_OF[EL[sel.slot.id].comp]===k ? EL[sel.slot.id].ans.map(String) : []);
-  card.querySelectorAll('.sock g').forEach(g=>g.classList.toggle('hl',keep.has(g.dataset.p)));
+  const act=sel.slot && REF_OF[EL[sel.slot.id].comp]===k;
+  if(act){ const ans=EL[sel.slot.id].ans; if(ans.length===3){ card.querySelectorAll('[data-p]').forEach(g=>g.classList.toggle('hl',ans.map(String).includes(g.dataset.p))); card.querySelectorAll('.it').forEach(g=>g.classList.toggle('on',ans.includes(+g.dataset.it) && !g.dataset.it.includes(','))); } else refHi(card,ans); }
+  else refHi(card,[]);
 });
 $('#tools').addEventListener('click',e=>{
   const b=e.target.closest('[data-act]'); if(!b) return; const a=b.dataset.act;
