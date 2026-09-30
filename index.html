@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>전기기능사 실기 연습장: 핀번호와 배선</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#E6EAED; --surface:#FFFFFF; --paper:#F7F9F8; --grid:#E3E9E7;
+  --ink:#1E2F3E; --ink-soft:#5A6A77; --line:#CBD3D9;
+  --steel:#C7CED4; --steel-edge:#98A3AC; --part:#F3F5F6; --part-edge:#5F6D78; --screw:#E9EDF0;
+  --sel:#1C5FD4; --sel-bg:#E3ECFB;
+  --ok:#2B8A4B; --ok-bg:#E2F3E7; --bad:#C9322A; --bad-bg:#FBE5E3;
+  --w-R:#8A4B22; --w-S:#1A1A1A; --w-T:#8C949B; --w-ctrl:#E6B400; --w-ctrl-ink:#C39200;
+  --halo:rgba(20,30,40,.42);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E141A; --surface:#161F27; --paper:#131C24; --grid:#1C2832;
+    --ink:#DCE6EE; --ink-soft:#91A1AE; --line:#2A3743;
+    --steel:#27313A; --steel-edge:#3E4B56; --part:#1D262E; --part-edge:#8A98A4; --screw:#2E3943;
+    --sel:#6EA1FF; --sel-bg:#172A4A;
+    --ok:#4CC074; --ok-bg:#14301E; --bad:#FF6B5E; --bad-bg:#3A1714;
+    --w-S:#060606; --w-ctrl-ink:#E6B400; --halo:rgba(230,236,240,.55);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E141A; --surface:#161F27; --paper:#131C24; --grid:#1C2832;
+  --ink:#DCE6EE; --ink-soft:#91A1AE; --line:#2A3743;
+  --steel:#27313A; --steel-edge:#3E4B56; --part:#1D262E; --part-edge:#8A98A4; --screw:#2E3943;
+  --sel:#6EA1FF; --sel-bg:#172A4A;
+  --ok:#4CC074; --ok-bg:#14301E; --bad:#FF6B5E; --bad-bg:#3A1714;
+  --w-S:#060606; --w-ctrl-ink:#E6B400; --halo:rgba(230,236,240,.55);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
+  font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit}
+.wrap{max-width:1420px;margin:0 auto;padding:20px 16px 40px}
+
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px;margin-bottom:18px}
+.top h1{margin:0;font-size:26px;line-height:1.25;font-weight:700;letter-spacing:-.01em}
+.top p{margin:4px 0 0;color:var(--ink-soft);max-width:60ch}
+
+.problem{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin-bottom:14px}
+.problem h2{margin:0;font-size:17px;font-weight:700}
+.problem details{margin-top:6px}
+.problem summary{cursor:pointer;color:var(--sel);font-weight:600;width:max-content}
+.problem ol{margin:8px 0 4px;padding-left:22px;max-width:78ch}
+.problem ol li{margin:2px 0}
+.problem .note{margin:8px 0 0;font-size:13px;color:var(--ink-soft);max-width:90ch}
+
+.steps{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.steps button{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--surface);
+  padding:10px 16px 10px 10px;border-radius:999px;cursor:pointer;font-weight:600}
+.steps .n{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;
+  border:1.5px solid var(--ink);font-size:13px;font-weight:700}
+.steps .cnt{font-weight:500;font-size:13px;color:var(--ink-soft)}
+.steps button[aria-selected="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.steps button[aria-selected="true"] .n{border-color:var(--surface)}
+.steps button[aria-selected="true"] .cnt{color:inherit;opacity:.75}
+.steps button:focus-visible,.tools button:focus-visible,.btn:focus-visible{outline:2px solid var(--sel);outline-offset:2px}
+
+.work{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:14px;align-items:start}
+@media (max-width:1040px){.work{grid-template-columns:1fr}}
+.pane{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;min-width:0}
+.pane-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.pane-bar h3{margin:0;font-size:15px;font-weight:700}
+.tools{display:flex;gap:6px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--surface);padding:6px 12px;border-radius:7px;cursor:pointer;font-size:14px;font-weight:500}
+.btn:hover{border-color:var(--ink-soft)}
+.btn.primary{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.scroll{overflow-x:auto;border-radius:6px;border:1px solid var(--line)}
+#sch{display:block;width:100%;min-width:720px;height:auto;background:var(--paper)}
+.status{margin:10px 2px 0;font-size:14px;color:var(--ink-soft);min-height:1.6em}
+.status b{color:var(--ink)}
+.status .good{color:var(--ok);font-weight:600}
+
+/* schematic */
+#sch .sym line,#sch .sym path,#sch .sym rect,#sch .sym circle{stroke:var(--ink);stroke-width:1.6;fill:none}
+#sch .sym .fillp{fill:var(--paper)}
+#sch .sym .term{fill:var(--paper);stroke-width:1.3}
+#sch .sym .dash{stroke-dasharray:4 3;stroke-width:1.2}
+#sch .sym .lampRL{fill:rgba(220,60,50,.18)} #sch .sym .lampGL{fill:rgba(40,160,80,.18)} #sch .sym .lampYL{fill:rgba(230,180,0,.25)}
+#sch .jn{fill:var(--ink)}
+#sch text{font-family:inherit}
+#sch .lbl{fill:var(--ink);font-size:13px;font-weight:600}
+#sch .lbl.sm{font-size:11px;font-weight:600;text-anchor:middle}
+#sch .lbl.in{text-anchor:middle;font-size:13px}
+#sch .lbl.tiny{font-size:9.5px;text-anchor:middle;fill:var(--ink-soft)}
+#sch .ext{stroke:var(--ink-soft);stroke-width:1.4;fill:none}
+.w .vis{stroke:var(--ink);stroke-width:1.6;fill:none;stroke-linejoin:round}
+.w .hit{stroke:transparent;stroke-width:14;fill:none;stroke-linejoin:round}
+.mode-pins .w{pointer-events:none}
+.mode-wire .w{cursor:pointer}
+.mode-wire .w:hover .vis{stroke:var(--sel);stroke-width:3}
+.w.on .vis{stroke-width:3.2}
+.w.on.t-R .vis{stroke:var(--w-R)} .w.on.t-S .vis{stroke:var(--w-S)} .w.on.t-T .vis{stroke:var(--w-T)} .w.on.t-ctrl .vis{stroke:var(--w-ctrl-ink)}
+:root:not([data-theme="light"]) .w.on.t-S .vis{stroke:var(--ink)}
+.w.hint .vis{stroke:var(--sel);stroke-width:3;stroke-dasharray:7 5;animation:march .8s linear infinite}
+.w.sel .vis{stroke:var(--sel);stroke-width:4.2;stroke-dasharray:none}
+@keyframes march{to{stroke-dashoffset:-12}}
+.slot{cursor:pointer;outline:none}
+.slot rect{fill:var(--surface);stroke:var(--ink-soft);stroke-width:1.1;stroke-dasharray:3 2}
+.slot text{font-size:11.5px;font-weight:700;text-anchor:middle;fill:var(--ink)}
+.slot:hover rect,.slot:focus-visible rect{stroke:var(--sel);stroke-dasharray:none;stroke-width:1.8}
+.slot.active rect{stroke:var(--sel);stroke-width:2.2;fill:var(--sel-bg);stroke-dasharray:none}
+.slot.ok rect{fill:var(--ok-bg);stroke:var(--ok);stroke-dasharray:none}
+.slot.bad rect{fill:var(--bad-bg);stroke:var(--bad);stroke-dasharray:none}
+.slot.ok text{fill:var(--ok)} .slot.bad text{fill:var(--bad)}
+.pinlbl{font-size:11px;font-weight:700;fill:var(--sel);text-anchor:middle}
+
+/* side: references */
+.card{border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:12px;background:var(--surface)}
+.card h4{margin:0 0 4px;font-size:15px}
+.card p{margin:4px 0;font-size:14px;max-width:62ch}
+.card .warn{color:var(--bad);font-weight:600}
+.card.now{border-left:4px solid var(--sel)}
+.refs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:520px){.refs{grid-template-columns:1fr}}
+.ref{border:1px solid var(--line);border-radius:8px;padding:10px 10px 8px;transition:border-color .15s}
+.ref.active{border-color:var(--sel);box-shadow:0 0 0 1px var(--sel) inset}
+.ref header{display:flex;justify-content:space-between;align-items:baseline;gap:6px;margin-bottom:6px}
+.ref h4{margin:0;font-size:14px}
+.ref header span{font-size:12px;color:var(--ink-soft)}
+.sock{width:100%;height:auto;display:block;margin-bottom:6px}
+.sock rect{fill:var(--part);stroke:var(--part-edge)}
+.sock circle{fill:var(--screw);stroke:var(--part-edge);stroke-width:1}
+.sock text{font-size:10px;font-weight:700;text-anchor:middle;fill:var(--ink)}
+.sock .hl circle{fill:var(--sel-bg);stroke:var(--sel);stroke-width:2.2}
+.ref ul{list-style:none;margin:0;padding:0;font-size:13px}
+.ref li{padding:2px 6px;border-radius:5px;cursor:default}
+.ref li b{font-weight:700;margin-right:4px;letter-spacing:.02em}
+.ref li:hover{background:var(--sel-bg)}
+.ref li.on{background:var(--sel-bg);color:var(--sel);font-weight:600}
+
+/* side: panel */
+#panel{display:block;width:100%;height:auto;max-width:640px;margin:0 auto}
+#panel text{font-family:inherit}
+.plate{fill:var(--steel);stroke:var(--steel-edge);stroke-width:1.5}
+.rail{fill:var(--steel-edge);opacity:.45}
+.part{fill:var(--part);stroke:var(--part-edge);stroke-width:1.2}
+.boxarea{fill:none;stroke:var(--part-edge);stroke-width:1.2;stroke-dasharray:6 4}
+.ptxt{fill:var(--ink);font-size:13px;font-weight:700;text-anchor:middle}
+.psub{fill:var(--ink-soft);font-size:10.5px;text-anchor:middle}
+.pin circle{fill:var(--screw);stroke:var(--part-edge);stroke-width:1}
+.pin text{font-size:8.5px;font-weight:700;text-anchor:middle;fill:var(--ink);pointer-events:none}
+.pin.hl circle{fill:var(--sel-bg);stroke:var(--sel);stroke-width:2.6}
+.pw{cursor:pointer}
+.pw .halo{stroke:var(--halo);stroke-width:5.4;fill:none;stroke-linecap:round}
+.pw .core{stroke-width:3.1;fill:none;stroke-linecap:round}
+.pw.t-R .core{stroke:var(--w-R)} .pw.t-S .core{stroke:var(--w-S)} .pw.t-T .core{stroke:var(--w-T)} .pw.t-ctrl .core{stroke:var(--w-ctrl)}
+.has-sel .pw:not(.sel){opacity:.38}
+.pw.sel .halo{stroke:var(--sel);stroke-width:8}
+.pw.fresh path{stroke-dasharray:1;stroke-dashoffset:1;animation:draw .7s ease-out forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.dev{stroke:var(--part-edge);stroke-width:1.2}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12.5px;color:var(--ink-soft)}
+.legend i{display:inline-block;width:18px;height:5px;border-radius:3px;vertical-align:middle;margin-right:5px;box-shadow:0 0 0 1px var(--halo)}
+.info .chip{display:inline-block;font-size:12px;padding:1px 8px;border-radius:999px;border:1px solid var(--line);color:var(--ink-soft);margin:2px 0 4px}
+.info h4{font-size:17px}
+.info .row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+
+/* keypad */
+.keypad{position:fixed;z-index:20;background:var(--surface);border:1px solid var(--line);border-radius:10px;
+  box-shadow:0 10px 30px rgba(0,0,0,.18);padding:10px;width:228px}
+.kp-head{font-size:13px;font-weight:700;margin-bottom:8px;display:flex;justify-content:space-between;gap:6px}
+.kp-head span{font-weight:500;color:var(--ink-soft)}
+.kp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.kp-grid button,.kp-foot button{height:40px;border:1px solid var(--line);border-radius:7px;background:var(--paper);
+  cursor:pointer;font-weight:700;font-size:15px}
+.kp-grid button:hover,.kp-grid button:focus-visible{border-color:var(--sel);background:var(--sel-bg);outline:none}
+.kp-foot{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.kp-foot button{font-size:13px;font-weight:600;height:34px}
+
+@media (prefers-reduced-motion:reduce){
+  .w.hint .vis{animation:none}
+  .pw.fresh path{animation:none;stroke-dashoffset:0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>전기기능사 실기 연습장</h1>
+      <p>도면에 핀번호를 적어 보고, 도면의 선을 눌러 제어판에 한 가닥씩 배선해 보세요.</p>
+    </div>
+  </header>
+
+  <section class="problem">
+    <h2>연습문제 1. 타이머로 자동 정지하는 전동기 회로</h2>
+    <details>
+      <summary>동작 설명 보기</summary>
+      <ol>
+        <li>MCCB를 올리면 GL(정지 표시)이 켜집니다.</li>
+        <li>PB1을 누르면 릴레이 X가 동작하고 자기유지됩니다. 동시에 타이머 T와 MC가 동작해 전동기가 돌고, RL이 켜지며 GL이 꺼집니다.</li>
+        <li>타이머 설정 시간이 지나면 T의 한시 b접점이 열려 MC가 멈춥니다. 전동기가 정지하고 RL이 꺼지며 GL이 켜집니다.</li>
+        <li>PB0을 누르면 X와 T가 풀려 처음 상태로 돌아갑니다.</li>
+        <li>과부하로 EOCR이 트립되면 제어회로 전체가 끊기고 YL이 켜집니다.</li>
+      </ol>
+    </details>
+    <p class="note">공개문제 형식을 본뜬 연습용 예제입니다. 핀 배치는 이 페이지의 내부결선도를 기준으로 하며, 실제 시험에서는 시험지에 주어진 내부결선도를 기준으로 확인하세요. 실제 작업에서는 조작 박스와 제어판 사이를 단자대와 배관으로 연결하지만, 여기서는 흐름이 잘 보이도록 직접 연결했습니다.</p>
+  </section>
+
+  <nav class="steps" role="tablist" aria-label="연습 단계">
+    <button role="tab" data-mode="pins"><span class="n">1</span>핀번호 넣기<span class="cnt" id="cnt-pins"></span></button>
+    <button role="tab" data-mode="wire"><span class="n">2</span>제어판 배선<span class="cnt" id="cnt-wire"></span></button>
+  </nav>
+
+  <div class="work">
+    <section class="pane">
+      <div class="pane-bar"><h3>시퀀스 도면</h3><div class="tools" id="tools"></div></div>
+      <div class="scroll" id="schWrap"><svg id="sch" viewBox="0 0 920 570" role="img" aria-label="시퀀스 도면"></svg></div>
+      <p class="status" id="status" aria-live="polite"></p>
+    </section>
+    <section class="pane" id="side"></section>
+  </div>
+</div>
+<div id="keypad" class="keypad" hidden role="dialog" aria-label="핀번호 선택"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const circ = n => (typeof n === 'number' && n >= 1 && n <= 20) ? String.fromCharCode(0x2460 + n - 1) : String(n);
+const COMP_MAX = {MC:12, EOCR:12, X:8, T:8};
+
+/* ---------- 부품 내부결선도 (이 예제 기준) ---------- */
+const R12 = [[1,2,3,4,5,6],[7,8,9,10,11,12]];
+const R8  = [[5,6,7,8],[4,3,2,1]];
+const REF = {
+  MC:   {title:'MC 전자접촉기', kind:'12핀', rows:R12, items:[['코일',6,12],['주접점 R',1,7],['주접점 S',2,8],['주접점 T',3,9],['보조 a접점',4,10],['보조 b접점',5,11]]},
+  EOCR: {title:'EOCR', kind:'12핀', rows:R12, items:[['전원',6,12],['주회로 R',1,7],['주회로 S',2,8],['주회로 T',3,9],['a접점 (트립 시 닫힘)',4,10],['b접점 (트립 시 열림)',5,11]]},
+  X:    {title:'X 릴레이', kind:'8핀', rows:R8, items:[['코일',2,7],['a접점',1,3],['b접점',1,4],['a접점',8,6],['b접점',8,5]]},
+  T:    {title:'T 타이머', kind:'8핀', rows:R8, items:[['코일 (전원)',2,7],['한시 a접점',8,6],['한시 b접점',8,5],['순시 a접점',1,3]]}
+};
+
+/* ---------- 도면 위 핀번호 칸 (접점/코일 단위) ---------- */
+const EL = {
+  MC_R:  {comp:'MC',  name:'MC 주접점 (R상)', def:[1,7], allow:[[1,7]], strict:true, slots:{t:[54,206], b:[54,234]}},
+  MC_S:  {comp:'MC',  name:'MC 주접점 (S상)', def:[2,8], allow:[[2,8]], strict:true, slots:{t:[94,206], b:[94,234]}},
+  MC_T:  {comp:'MC',  name:'MC 주접점 (T상)', def:[3,9], allow:[[3,9]], strict:true, slots:{t:[134,206], b:[134,234]}},
+  EO_R:  {comp:'EOCR',name:'EOCR 주회로 (R상)', def:[1,7], allow:[[1,7]], strict:true, slots:{t:[56,275], b:[56,335]}},
+  EO_S:  {comp:'EOCR',name:'EOCR 주회로 (S상)', def:[2,8], allow:[[2,8]], strict:true, slots:{t:[96,275], b:[96,335]}},
+  EO_T:  {comp:'EOCR',name:'EOCR 주회로 (T상)', def:[3,9], allow:[[3,9]], strict:true, slots:{t:[136,275], b:[136,335]}},
+  EO_PWR:{comp:'EOCR',name:'EOCR 전원', def:[6,12], allow:[[6,12]], slots:{t:[256,258], b:[256,292]}},
+  EO_A:  {comp:'EOCR',name:'EOCR a접점', def:[4,10], allow:[[4,10]], slots:{t:[344,126], b:[344,154]}},
+  EO_B:  {comp:'EOCR',name:'EOCR b접점', def:[5,11], allow:[[5,11]], slots:{t:[408,47], b:[442,47]}},
+  X_A1:  {comp:'X',   name:'X a접점 (자기유지)', def:[1,3], allow:[[1,3],[8,6]], slots:{t:[534,226], b:[534,254]}},
+  X_A2:  {comp:'X',   name:'X a접점', def:[8,6], allow:[[1,3],[8,6]], slots:{t:[604,126], b:[604,154]}},
+  X_COIL:{comp:'X',   name:'X 코일', def:[2,7], allow:[[2,7]], slots:{t:[446,364], b:[446,396]}},
+  T_COIL:{comp:'T',   name:'타이머 코일', def:[2,7], allow:[[2,7]], slots:{t:[586,364], b:[586,396]}},
+  T_B:   {comp:'T',   name:'타이머 한시 b접점', def:[8,5], allow:[[8,5]], slots:{t:[684,256], b:[684,284]}},
+  MC_COIL:{comp:'MC', name:'MC 코일', def:[6,12], allow:[[6,12]], slots:{t:[666,364], b:[666,396]}},
+  MC_A:  {comp:'MC',  name:'MC 보조 a접점', def:[4,10], allow:[[4,10]], slots:{t:[764,196], b:[764,224]}},
+  MC_B:  {comp:'MC',  name:'MC 보조 b접점', def:[5,11], allow:[[5,11]], slots:{t:[834,196], b:[834,224]}}
+};
+const EL_IDS = Object.keys(EL);
+const TOTAL_SLOTS = EL_IDS.length * 2;
+
+/* ---------- 배선 목록: 도면의 선 1개 = 제어판 전선 1가닥 ---------- */
+const N_NOTE = '코일이나 램프의 반대쪽을 공통선(T상)으로 이어 줍니다. 아랫줄 공통선은 옆 단자로 건너가며 연결해요.';
+const WIRES = [
+  {id:'m1', a:'TB1.R', b:'MCCB.1', type:'R', d:'M70 60 V95'},
+  {id:'m2', a:'TB1.S', b:'MCCB.3', type:'S', d:'M110 60 V95'},
+  {id:'m3', a:'TB1.T', b:'MCCB.5', type:'T', d:'M150 60 V95'},
+  {id:'m4', a:'MCCB.2', b:'MC_R.t', type:'R', d:'M70 125 V200'},
+  {id:'m5', a:'MCCB.4', b:'MC_S.t', type:'S', d:'M110 125 V200'},
+  {id:'m6', a:'MCCB.6', b:'MC_T.t', type:'T', d:'M150 125 V200'},
+  {id:'m7', a:'MC_R.b', b:'EO_R.t', type:'R', d:'M70 240 V285'},
+  {id:'m8', a:'MC_S.b', b:'EO_S.t', type:'S', d:'M110 240 V285'},
+  {id:'m9', a:'MC_T.b', b:'EO_T.t', type:'T', d:'M150 240 V285'},
+  {id:'m10', a:'EO_R.b', b:'TB2.U', type:'R', d:'M70 325 V390'},
+  {id:'m11', a:'EO_S.b', b:'TB2.V', type:'S', d:'M110 325 V390'},
+  {id:'m12', a:'EO_T.b', b:'TB2.W', type:'T', d:'M150 325 V390'},
+  {id:'c1', a:'MCCB.2', b:'EO_PWR.t', type:'ctrl', d:'M70 150 H30 V30 H290 V250', note:'조작회로 전원(R상)을 MCCB 2차측에서 따서 EOCR 전원으로 보냅니다.'},
+  {id:'c2', a:'EO_PWR.t', b:'EO_A.t', type:'ctrl', d:'M290 30 H360 V120', note:'도면에서 같은 점(●)에 이어진 단자는 전기적으로 같은 곳이라, 가까운 단자끼리 건너 연결(점퍼)합니다.'},
+  {id:'c3', a:'EO_A.t', b:'EO_B.t', type:'ctrl', d:'M360 30 H400', note:'EOCR a접점과 b접점의 입구를 같은 전원선에 묶습니다.'},
+  {id:'c4', a:'EO_A.b', b:'YL.1', type:'ctrl', d:'M360 160 V436', note:'EOCR이 트립되면 a접점이 닫혀 YL(황색 램프)이 켜집니다.'},
+  {id:'c5', a:'YL.2', b:'EO_PWR.b', type:'ctrl', d:'M360 464 V540 H290', note:N_NOTE},
+  {id:'c6', a:'MCCB.6', b:'EO_PWR.b', type:'ctrl', d:'M150 150 H220 V540 H290 V300', note:'조작회로의 공통선(T상)을 MCCB 2차측에서 따서 EOCR 전원 반대쪽에 연결합니다.'},
+  {id:'c7', a:'EO_B.b', b:'PB0.1', type:'ctrl', d:'M450 30 H480 V110', note:'EOCR b접점을 지난 전원이 정지 버튼 PB0으로 들어갑니다. 트립되면 여기서 전체가 끊겨요.'},
+  {id:'c8', a:'PB0.1', b:'X_A2.t', type:'ctrl', d:'M480 30 H620 V120', note:'윗줄 전원선이 X a접점으로 이어집니다.'},
+  {id:'c9', a:'X_A2.t', b:'MC_A.t', type:'ctrl', d:'M620 30 H780 V190', note:'램프용 MC 보조접점도 같은 전원선에서 받습니다.'},
+  {id:'c10', a:'MC_A.t', b:'MC_B.t', type:'ctrl', d:'M780 30 H850 V190', note:'MC a접점과 b접점의 입구를 점퍼로 묶습니다.'},
+  {id:'c11', a:'PB0.2', b:'PB1.3', type:'ctrl', d:'M480 150 V220', note:'정지 버튼 PB0(b접점)을 지나 기동 버튼 PB1로 갑니다.'},
+  {id:'c12', a:'PB1.3', b:'X_A1.t', type:'ctrl', d:'M480 190 H550 V220', note:'X a접점을 PB1과 병렬로 연결합니다. 이것이 자기유지 회로예요.'},
+  {id:'c13', a:'PB1.4', b:'X_COIL.t', type:'ctrl', d:'M480 260 V360', note:'PB1을 누르면 X 코일에 전원이 들어갑니다.'},
+  {id:'c14', a:'X_A1.b', b:'X_COIL.t', type:'ctrl', d:'M550 260 V300 H480', note:'자기유지 접점의 출구를 X 코일 입구에 묶습니다. 손을 떼도 X가 계속 동작해요.'},
+  {id:'c15', a:'X_COIL.b', b:'YL.2', type:'ctrl', d:'M480 400 V540 H360', note:N_NOTE},
+  {id:'c16', a:'X_A2.b', b:'T_COIL.t', type:'ctrl', d:'M620 160 V360', note:'X가 동작하면 이 a접점이 닫혀 타이머 코일에 전원이 들어갑니다.'},
+  {id:'c17', a:'T_COIL.t', b:'T_B.t', type:'ctrl', d:'M620 210 H700 V250', note:'타이머 코일 입구에서 한시 b접점의 공통 단자로 점퍼합니다.'},
+  {id:'c18', a:'T_B.b', b:'MC_COIL.t', type:'ctrl', d:'M700 290 V360', note:'설정 시간이 지나기 전까지 한시 b접점이 닫혀 있어 MC가 동작합니다.'},
+  {id:'c19', a:'T_COIL.b', b:'X_COIL.b', type:'ctrl', d:'M620 400 V540 H480', note:N_NOTE},
+  {id:'c20', a:'MC_COIL.b', b:'T_COIL.b', type:'ctrl', d:'M700 400 V540 H620', note:N_NOTE},
+  {id:'c21', a:'MC_A.b', b:'RL.1', type:'ctrl', d:'M780 230 V436', note:'MC가 동작하면 a접점이 닫혀 RL(운전 표시)이 켜집니다.'},
+  {id:'c22', a:'RL.2', b:'MC_COIL.b', type:'ctrl', d:'M780 464 V540 H700', note:N_NOTE},
+  {id:'c23', a:'MC_B.b', b:'GL.1', type:'ctrl', d:'M850 230 V436', note:'MC가 멈춰 있으면 b접점이 닫혀 GL(정지 표시)이 켜집니다.'},
+  {id:'c24', a:'GL.2', b:'RL.2', type:'ctrl', d:'M850 464 V540 H780', note:N_NOTE}
+];
+const TYPE_NAME = {R:'주회로 R상 (갈색)', S:'주회로 S상 (흑색)', T:'주회로 T상 (회색)', ctrl:'제어회로 (황색)'};
+
+/* ---------- 제어판 단자 좌표 ---------- */
+const PIN = {};
+['R','S','T'].forEach((k,i)=>PIN['TB1-'+k]={x:60+35*i,y:50,d:1,t:k});
+[1,3,5].forEach((k,i)=>PIN['MCCB-'+k]={x:60+35*i,y:96,d:-1,t:k});
+[2,4,6].forEach((k,i)=>PIN['MCCB-'+k]={x:60+35*i,y:154,d:1,t:k});
+['U','V','W'].forEach((k,i)=>PIN['TB2-'+k]={x:60+35*i,y:262,d:-1,t:k});
+function sock12(n,y0){for(let i=0;i<6;i++){PIN[n+'-'+(i+1)]={x:205+36*i,y:y0+23,d:-1,t:i+1};PIN[n+'-'+(i+7)]={x:205+36*i,y:y0+107,d:1,t:i+7};}}
+function sock8(n,y0){[5,6,7,8].forEach((p,i)=>PIN[n+'-'+p]={x:455+35*i,y:y0+23,d:-1,t:p});[4,3,2,1].forEach((p,i)=>PIN[n+'-'+p]={x:455+35*i,y:y0+107,d:1,t:p});}
+sock12('MC',25); sock12('EOCR',185); sock8('X',25); sock8('T',185);
+const BOX = [
+  {id:'PB0',x:85,pins:['1','2'],name:'PB0',sub:'정지',color:'#D23A30'},
+  {id:'PB1',x:195,pins:['3','4'],name:'PB1',sub:'기동',color:'#2E9A55'},
+  {id:'RL',x:305,pins:['1','2'],name:'RL',sub:'운전 표시',color:'#E0483D',lamp:true},
+  {id:'GL',x:415,pins:['1','2'],name:'GL',sub:'정지 표시',color:'#3DAA62',lamp:true},
+  {id:'YL',x:525,pins:['1','2'],name:'YL',sub:'트립 표시',color:'#E8B800',lamp:true}
+];
+BOX.forEach(b=>b.pins.forEach((p,i)=>PIN[b.id+'-'+p]={x:b.x+(i?16:-16),y:428,d:-1,t:circ(+p)}));
+
+/* ---------- 상태 ---------- */
+const KEY = 'elec-practice-1';
+let state = {mode:'pins', pins:{}, wired:[], checked:false};
+try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && typeof s === 'object') state = Object.assign(state, s); } catch(e) {}
+let wired = new Set(state.wired || []);
+const sel = {slot:null, wire:null, hint:null, fresh:null};
+let ST = {}, EFF = {};
+function save(){ state.wired=[...wired]; try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+
+const pairKey = (c,a,b) => c+':'+[a,b].sort((x,y)=>x-y).join('-');
+function computeStatus(){
+  const st = {};
+  for (const id of EL_IDS){
+    const e = EL[id], u = state.pins[id] || {};
+    if (u.t == null || u.b == null){ st[id] = (u.t == null && u.b == null) ? 'empty' : 'part'; continue; }
+    const ok = e.allow.some(([p,q]) => (u.t===p && u.b===q) || (!e.strict && u.t===q && u.b===p));
+    st[id] = ok ? 'ok' : 'bad';
+  }
+  const used = {};
+  for (const id of EL_IDS){
+    if (st[id] !== 'ok') continue;
+    const u = state.pins[id], k = pairKey(EL[id].comp, u.t, u.b);
+    if (used[k]) st[id] = 'dup'; else used[k] = id;
+  }
+  return st;
+}
+function computeEff(st){
+  const out = {}, used = new Set();
+  for (const id of EL_IDS) if (st[id]==='ok'){ const u=state.pins[id]; out[id]=[u.t,u.b]; used.add(pairKey(EL[id].comp,u.t,u.b)); }
+  for (const id of EL_IDS) if (!out[id]){
+    const e = EL[id];
+    const pick = e.allow.find(pq => !used.has(pairKey(e.comp,pq[0],pq[1]))) || e.def;
+    out[id] = [pick[0], pick[1]]; used.add(pairKey(e.comp,pick[0],pick[1]));
+  }
+  return out;
+}
+function resolve(ref){
+  const [a,b] = ref.split('.');
+  if (EL[a]){ const p = EFF[a][b==='t'?0:1]; const c = EL[a].comp; return {pid:c+'-'+p, label:c+' '+circ(p)}; }
+  const isNum = /^\d+$/.test(b);
+  return {pid:a+'-'+b, label:a+' '+(isNum?circ(+b):b)};
+}
+
+/* ---------- 도면 기호 ---------- */
+const L = (x1,y1,x2,y2,c) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"${c?` class="${c}"`:''}/>`;
+const term = (x,y) => `<circle class="term" cx="${x}" cy="${y}" r="2.4"/>`;
+function contact(x,y1,y2,type,o={}){
+  const st = Math.min(10,(y2-y1)/4);
+  let s = L(x,y1,x,y1+st) + L(x,y2-st,x,y2), mx, my;
+  if (type==='a'){ s += L(x,y2-st,x+11,y1+st+3); mx=x+5.5; my=(y2-st+y1+st+3)/2; }
+  else { s += L(x,y1+st,x-11,y1+st) + L(x,y2-st,x-10,y1+st-3); mx=x-5; my=(y2-st+y1+st-3)/2; }
+  if (o.pb){ s += L(mx,my,x-22,my,'dash') + L(x-22,my-5,x-22,my+5); }
+  if (o.timer){ s += `<path d="M${x+6} ${my+7} q6 -11 12 0"/>`; }
+  s += term(x,y1) + term(x,y2);
+  if (o.label) s += `<text class="lbl" x="${x+(o.lx||15)}" y="${(y1+y2)/2+5}">${o.label}</text>`;
+  return s;
+}
+function coil(x,y1,y2,label){
+  const cy=(y1+y2)/2, r=(y2-y1)/2-2;
+  return L(x,y1,x,cy-r)+L(x,cy+r,x,y2)+`<circle class="fillp" cx="${x}" cy="${cy}" r="${r}"/>`+`<text class="lbl in" x="${x}" y="${cy+5}">${label}</text>`+term(x,y1)+term(x,y2);
+}
+function lamp(x,cy,label){
+  const d=9.9;
+  return L(x,cy-14,x,cy-14)+`<circle class="lamp${label}" cx="${x}" cy="${cy}" r="14"/>`+L(x-d,cy-d,x+d,cy+d)+L(x-d,cy+d,x+d,cy-d)+term(x,cy-14)+term(x,cy+14)+`<text class="lbl" x="${x+20}" y="${cy+5}">${label}</text>`;
+}
+function buildSymbols(){
+  let s = '';
+  [70,110,150].forEach((x,i)=>{ s += `<rect class="fillp" x="${x-5}" y="50" width="10" height="10"/><text class="lbl sm" x="${x}" y="44">${'RST'[i]}</text>`; });
+  s += `<text class="lbl" x="166" y="60">TB1</text>`;
+  [70,110,150].forEach(x=> s += contact(x,95,125,'a'));
+  s += L(75.5,111.5,158,111.5,'dash') + `<text class="lbl" x="164" y="116">MCCB</text>`;
+  [70,110,150].forEach(x=> s += contact(x,200,240,'a'));
+  s += L(75.5,221.5,158,221.5,'dash') + `<text class="lbl" x="164" y="226">MC</text>`;
+  s += `<rect class="fillp" x="52" y="285" width="114" height="40" rx="2"/>`;
+  [70,110,150].forEach(x=> s += L(x,285,x,325) + `<circle class="fillp" cx="${x}" cy="305" r="6"/>` + term(x,285)+term(x,325));
+  s += `<text class="lbl" x="172" y="310">EOCR</text>`;
+  [70,110,150].forEach((x,i)=>{ s += `<rect class="fillp" x="${x-5}" y="390" width="10" height="10"/><text class="lbl sm" x="${x+13}" y="399">${'UVW'[i]}</text>`; });
+  s += `<text class="lbl" x="166" y="400">TB2</text>`;
+  s += `<path class="ext" d="M70 400 V432 L88 450"/><path class="ext" d="M110 400 V440"/><path class="ext" d="M150 400 V432 L132 450"/>`;
+  s += `<circle class="fillp" cx="110" cy="470" r="30"/><text class="lbl in" x="110" y="468">M</text><text class="lbl tiny" x="110" y="484">3~</text>`;
+  s += `<rect class="fillp" x="272" y="250" width="36" height="50" rx="2"/>` + term(290,250) + term(290,300)
+     + `<text class="lbl tiny" x="290" y="272">EOCR</text><text class="lbl tiny" x="290" y="286">전원</text>`;
+  s += contact(360,120,160,'a',{label:'EOCR'});
+  s += L(400,30,410,30)+L(440,30,450,30)+L(440,30,440,20)+L(410,30,444,18)+term(400,30)+term(450,30)+`<text class="lbl sm" x="425" y="12">EOCR</text>`;
+  s += contact(480,110,150,'b',{pb:true,label:'PB0'});
+  s += contact(480,220,260,'a',{pb:true,label:'PB1'});
+  s += contact(550,220,260,'a',{label:'X'});
+  s += coil(480,360,400,'X');
+  s += contact(620,120,160,'a',{label:'X'});
+  s += coil(620,360,400,'T');
+  s += contact(700,250,290,'b',{timer:true,label:'T',lx:22});
+  s += coil(700,360,400,'MC');
+  s += contact(780,190,230,'a',{label:'MC'});
+  s += contact(850,190,230,'b',{label:'MC'});
+  s += lamp(360,450,'YL') + lamp(780,450,'RL') + lamp(850,450,'GL');
+  return s;
+}
+const SYMBOLS = buildSymbols();
+const JUNCTIONS = [[70,150],[150,150],[290,30],[360,30],[480,30],[620,30],[780,30],[480,190],[480,300],[620,210],[290,540],[360,540],[480,540],[620,540],[700,540],[780,540]];
+
+/* ---------- 렌더링: 도면 ---------- */
+function slotSVG(id,end){
+  const e = EL[id], [cx,cy] = e.slots[end];
+  if (state.mode === 'wire'){
+    const p = EFF[id][end==='t'?0:1];
+    return `<text class="pinlbl" x="${cx}" y="${cy+4}">${p}</text>`;
+  }
+  const u = (state.pins[id]||{})[end];
+  let cls = 'slot';
+  if (state.checked && u != null){ const s = ST[id]; if (s==='ok') cls+=' ok'; else if (s==='bad'||s==='dup') cls+=' bad'; }
+  if (sel.slot && sel.slot.id===id && sel.slot.end===end) cls += ' active';
+  const lab = `${e.name}, ${end==='t'?'첫째':'둘째'} 단자 핀번호${u!=null?' '+u:' 비어 있음'}`;
+  return `<g class="${cls}" data-slot="${id}.${end}" tabindex="0" role="button" aria-label="${lab}"><rect x="${cx-10}" y="${cy-8}" width="20" height="16" rx="3"/><text x="${cx}" y="${cy+4}">${u!=null?u:''}</text></g>`;
+}
+function renderSchematic(){
+  const svg = $('#sch');
+  svg.setAttribute('class', 'mode-'+state.mode);
+  let s = `<defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="var(--grid)" stroke-width="1"/></pattern></defs><rect width="920" height="570" fill="url(#grid)"/>`;
+  s += '<g>' + WIRES.map(w=>{
+    let c = 'w t-'+w.type;
+    if (state.mode==='wire'){ if (wired.has(w.id)) c+=' on'; if (sel.hint===w.id) c+=' hint'; if (sel.wire===w.id) c+=' sel'; }
+    return `<g class="${c}" data-wire="${w.id}"><path class="vis" d="${w.d}"/><path class="hit" d="${w.d}"/></g>`;
+  }).join('') + '</g>';
+  s += `<g class="sym">${SYMBOLS}</g>`;
+  s += JUNCTIONS.map(([x,y])=>`<circle class="jn" cx="${x}" cy="${y}" r="3.6"/>`).join('');
+  s += EL_IDS.map(id=>slotSVG(id,'t')+slotSVG(id,'b')).join('');
+  svg.innerHTML = s;
+}
+
+/* ---------- 렌더링: 오른쪽 (1단계) ---------- */
+function hintFor(id){
+  const e = EL[id], r = REF[e.comp];
+  const m = r.items.filter(it => e.allow.some(([p,q]) => p===it[1] && q===it[2]));
+  const kind = m.length ? m[0][0] : '';
+  const pairs = m.map(it=>circ(it[1])+'–'+circ(it[2])).join(', ');
+  if (e.strict) return `${r.title}의 ${kind}입니다. 내부결선도에서 ${pairs}를 찾으세요. 위쪽이 전원 쪽, 아래쪽이 부하(전동기) 쪽이에요.`;
+  if (m.length > 1) return `${r.title}의 ${kind}입니다. 내부결선도에 ${kind}이 ${pairs} 두 개 있으니, 그중 하나를 쓰되 같은 부품의 다른 ${kind}과 겹치지 않게 골라요.`;
+  return `${r.title}의 ${kind}입니다. 내부결선도에서 ${pairs}를 찾으면 돼요. 두 번호의 위아래 순서는 바뀌어도 괜찮아요.`;
+}
+function refCard(k){
+  const r = REF[k];
+  const active = !!(sel.slot && EL[sel.slot.id].comp === k);
+  const allow = active ? EL[sel.slot.id].allow : [];
+  const hl = new Set(allow.flat());
+  const six = r.rows[0].length === 6, W = six ? 216 : 156, x0 = six ? 22 : 26, dx = six ? 34.4 : 35;
+  let sv = `<rect x="4" y="4" width="${W-8}" height="66" rx="6"/>`;
+  r.rows.forEach((row,ri)=>row.forEach((p,i)=>{
+    sv += `<g class="${hl.has(p)?'hl':''}" data-p="${p}"><circle cx="${x0+dx*i}" cy="${ri?52:22}" r="10"/><text x="${x0+dx*i}" y="${(ri?52:22)+3.5}">${p}</text></g>`;
+  }));
+  const li = r.items.map(it=>{
+    const on = allow.some(([p,q])=>p===it[1]&&q===it[2]);
+    return `<li data-pins="${it[1]},${it[2]}" class="${on?'on':''}"><b>${circ(it[1])}–${circ(it[2])}</b>${it[0]}</li>`;
+  }).join('');
+  return `<article class="ref${active?' active':''}" data-ref="${k}"><header><h4>${r.title}</h4><span>${r.kind} 소켓 (위에서 본 모습)</span></header><svg class="sock" viewBox="0 0 ${W} 74" aria-hidden="true">${sv}</svg><ul>${li}</ul></article>`;
+}
+function renderSidePins(){
+  let now;
+  if (sel.slot){
+    const id = sel.slot.id, e = EL[id], s = ST[id];
+    now = `<h4>${e.name}</h4><p>${hintFor(id)}</p>`;
+    if (state.checked && s==='dup') now += `<p class="warn">같은 부품의 다른 접점과 번호가 겹쳐요.</p>`;
+    else if (state.checked && s==='bad') now += `<p class="warn">내부결선도와 맞지 않아요. 파란색으로 표시된 핀을 다시 보세요.</p>`;
+    else if (state.checked && s==='ok') now += `<p style="color:var(--ok);font-weight:600">맞았어요.</p>`;
+  } else {
+    now = `<h4>도면의 점선 칸을 눌러 시작하세요</h4><p>칸을 누르면 번호판이 열려요. 어느 부품의 어떤 접점인지 아래 내부결선도에 파란색으로 표시됩니다.</p>`;
+  }
+  $('#side').innerHTML = `<div class="pane-bar"><h3>부품 내부결선도</h3></div><div class="card now">${now}</div><div class="refs">${['X','T','MC','EOCR'].map(refCard).join('')}</div>`;
+}
+
+/* ---------- 렌더링: 오른쪽 (2단계 제어판) ---------- */
+function wirePath(a,b,i){
+  const k = 34 + (i%5)*8;
+  return `M${a.x} ${a.y} C${a.x} ${a.y+a.d*k} ${b.x} ${b.y+b.d*k} ${b.x} ${b.y}`;
+}
+function panelSVG(){
+  let s = `<rect class="plate" x="8" y="8" width="604" height="584" rx="10"/>`;
+  s += `<rect class="rail" x="175" y="84" width="430" height="10"/><rect class="rail" x="175" y="244" width="430" height="10"/>`;
+  s += `<rect class="part" x="40" y="37" width="110" height="26" rx="3"/><text class="psub" x="95" y="30">TB1 전원</text>`;
+  s += `<rect class="part" x="40" y="80" width="110" height="90" rx="4"/><text class="ptxt" x="95" y="130">MCCB</text>`;
+  s += `<rect class="part" x="40" y="249" width="110" height="26" rx="3"/><text class="psub" x="95" y="292">TB2 전동기</text>`;
+  const sock = (x,y,w,t,sub) => `<rect class="part" x="${x}" y="${y}" width="${w}" height="130" rx="6"/><text class="ptxt" x="${x+w/2}" y="${y+64}">${t}</text><text class="psub" x="${x+w/2}" y="${y+80}">${sub}</text>`;
+  s += sock(185,25,220,'MC','12핀 소켓') + sock(185,185,220,'EOCR','12핀 소켓') + sock(430,25,165,'X','8핀 릴레이') + sock(430,185,165,'T','8핀 타이머');
+  s += `<rect class="boxarea" x="25" y="370" width="570" height="212" rx="8"/><text class="psub" x="310" y="392">조작 박스 (푸시버튼과 램프)</text>`;
+  BOX.forEach(b=>{
+    s += `<rect class="part" x="${b.x-34}" y="408" width="68" height="40" rx="4"/>`;
+    s += b.lamp
+      ? `<circle cx="${b.x}" cy="492" r="24" fill="${b.color}" fill-opacity=".85" class="dev"/><circle cx="${b.x}" cy="492" r="14" fill="#fff" fill-opacity=".35"/>`
+      : `<circle cx="${b.x}" cy="492" r="24" fill="#2b2f33" class="dev"/><circle cx="${b.x}" cy="492" r="17" fill="${b.color}"/>`;
+    s += `<text class="ptxt" x="${b.x}" y="541">${b.name}</text><text class="psub" x="${b.x}" y="557">${b.sub}</text>`;
+  });
+  let hlPins = new Set();
+  if (sel.wire){ const w = WIRES.find(x=>x.id===sel.wire); hlPins.add(resolve(w.a).pid); hlPins.add(resolve(w.b).pid); }
+  s += Object.entries(PIN).map(([id,p])=>`<g class="pin${hlPins.has(id)?' hl':''}"><circle cx="${p.x}" cy="${p.y}" r="8"/><text x="${p.x}" y="${p.y+3}">${p.t}</text></g>`).join('');
+  const list = WIRES.map((w,i)=>({w,i})).filter(o=>wired.has(o.w.id));
+  list.sort((a,b)=> (a.w.id===sel.wire) - (b.w.id===sel.wire));
+  s += list.map(({w,i})=>{
+    const A = PIN[resolve(w.a).pid], B = PIN[resolve(w.b).pid];
+    if (!A || !B) return '';
+    const d = wirePath(A,B,i);
+    const c = `pw t-${w.type}${sel.wire===w.id?' sel':''}${sel.fresh===w.id?' fresh':''}`;
+    return `<g class="${c}" data-wire="${w.id}"><path class="halo" d="${d}" pathLength="1"/><path class="core" d="${d}" pathLength="1"/></g>`;
+  }).join('');
+  s += [...hlPins].map(id=>{const p=PIN[id]; return p?`<circle cx="${p.x}" cy="${p.y}" r="11" fill="none" stroke="var(--sel)" stroke-width="2.4"/>`:'';}).join('');
+  return s;
+}
+function renderSideWire(){
+  let info;
+  if (sel.wire){
+    const w = WIRES.find(x=>x.id===sel.wire), A = resolve(w.a), B = resolve(w.b);
+    const note = w.note || `주회로는 굵은 선(${TYPE_NAME[w.type].replace(/.*\((.*)\)/,'$1')})으로 같은 상끼리 위에서 아래로 연결합니다.`;
+    info = `<h4>${A.label} → ${B.label}</h4><span class="chip">${TYPE_NAME[w.type]}</span><p>${note}</p>
+      <div class="row">${wired.has(w.id)?`<button class="btn" data-act="unwire">이 선 빼기</button>`:`<button class="btn primary" data-act="wireit">연결하기</button>`}</div>`;
+  } else if (sel.hint){
+    const w = WIRES.find(x=>x.id===sel.hint), A = resolve(w.a), B = resolve(w.b);
+    info = `<h4>다음 선: ${A.label} → ${B.label}</h4><p>도면에서 깜빡이는 선을 눌러 연결하세요.</p>`;
+  } else {
+    info = `<h4>도면의 선을 눌러 보세요</h4><p>누른 선이 제어판의 어느 단자와 어느 단자를 잇는지 바로 그려집니다. 막막하면 "다음 선 보기"를 눌러 순서대로 따라가 보세요.</p>
+      <p style="color:var(--ink-soft);font-size:13px">1단계에서 맞게 적은 핀번호가 배선에 반영돼요. 비어 있거나 틀린 칸은 기본 정답 번호로 연결합니다.</p>`;
+  }
+  $('#side').innerHTML = `<div class="pane-bar"><h3>제어판</h3>
+      <div class="legend"><span><i style="background:var(--w-R)"></i>R</span><span><i style="background:var(--w-S)"></i>S</span><span><i style="background:var(--w-T)"></i>T</span><span><i style="background:var(--w-ctrl)"></i>제어</span></div></div>
+    <svg id="panel" viewBox="0 0 620 600" class="${sel.wire?'has-sel':''}" role="img" aria-label="제어판 배선 상태">${panelSVG()}</svg>
+    <div class="card info">${info}</div>`;
+}
+
+/* ---------- 렌더링: 공통 ---------- */
+function render(){
+  ST = computeStatus(); EFF = computeEff(ST);
+  const filled = EL_IDS.reduce((n,id)=>n+((state.pins[id]||{}).t!=null)+((state.pins[id]||{}).b!=null),0);
+  const okSlots = EL_IDS.filter(id=>ST[id]==='ok').length*2;
+  document.querySelectorAll('.steps button').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.mode===state.mode)));
+  $('#cnt-pins').textContent = state.checked ? `${okSlots}/${TOTAL_SLOTS} 정답` : `${filled}/${TOTAL_SLOTS}`;
+  $('#cnt-wire').textContent = `${wired.size}/${WIRES.length}`;
+  const tools = $('#tools'), st = $('#status');
+  if (state.mode==='pins'){
+    tools.innerHTML = `<button class="btn primary" data-act="check">채점하기</button><button class="btn" data-act="answer">정답 채우기</button><button class="btn" data-act="clearpins">모두 지우기</button>`;
+    if (state.checked){
+      st.innerHTML = okSlots===TOTAL_SLOTS
+        ? `<span class="good">${TOTAL_SLOTS}칸 모두 맞았어요.</span> 이제 2단계에서 이 번호대로 배선해 보세요.`
+        : `<b>${okSlots}/${TOTAL_SLOTS}칸 정답.</b> 빨간 칸을 눌러 무엇이 틀렸는지 확인하세요.`;
+    } else st.innerHTML = `칸을 채운 뒤 채점하기를 누르세요. 입력 <b>${filled}/${TOTAL_SLOTS}</b>칸`;
+    renderSchematic(); renderSidePins();
+  } else {
+    tools.innerHTML = `<button class="btn primary" data-act="next">다음 선 보기</button><button class="btn" data-act="wireall">모두 연결</button><button class="btn" data-act="clearwires">초기화</button>`;
+    st.innerHTML = wired.size===WIRES.length
+      ? `<span class="good">배선 완료.</span> ${WIRES.length}가닥을 모두 연결했어요. 선을 눌러 각각의 역할을 다시 확인해 보세요.`
+      : `<b>${wired.size}/${WIRES.length}</b>가닥 연결됨. 주회로 ${WIRES.filter(w=>w.type!=='ctrl'&&wired.has(w.id)).length}/12, 제어회로 ${WIRES.filter(w=>w.type==='ctrl'&&wired.has(w.id)).length}/${WIRES.filter(w=>w.type==='ctrl').length}`;
+    renderSchematic(); renderSideWire();
+  }
+  save();
+  sel.fresh = null;
+}
+
+/* ---------- 번호판 ---------- */
+const kp = $('#keypad');
+function openKeypad(id,end){
+  sel.slot = {id,end}; render();
+  const g = document.querySelector(`[data-slot="${id}.${end}"]`);
+  const max = COMP_MAX[EL[id].comp], cur = (state.pins[id]||{})[end];
+  kp.innerHTML = `<div class="kp-head">${EL[id].name}<span>${end==='t'?'첫째':'둘째'} 단자</span></div>
+    <div class="kp-grid">${Array.from({length:max},(_,i)=>`<button data-n="${i+1}"${cur===i+1?' style="border-color:var(--sel)"':''}>${i+1}</button>`).join('')}</div>
+    <div class="kp-foot"><button data-n="clear">비우기</button><button data-n="close">닫기</button></div>`;
+  kp.hidden = false;
+  if (g){
+    const r = g.getBoundingClientRect(), w = kp.offsetWidth, h = kp.offsetHeight;
+    let left = r.left + r.width/2 - w/2, top = r.bottom + 8;
+    if (top + h > innerHeight - 8) top = r.top - h - 8;
+    kp.style.left = Math.max(8, Math.min(left, innerWidth - w - 8)) + 'px';
+    kp.style.top = Math.max(8, top) + 'px';
+  }
+  (kp.querySelector('.kp-grid button')||kp).focus({preventScroll:true});
+}
+function closeKeypad(){ kp.hidden = true; }
+kp.addEventListener('click', e=>{
+  const b = e.target.closest('button'); if (!b || !sel.slot) return;
+  const {id,end} = sel.slot, n = b.dataset.n;
+  if (n==='close'){ closeKeypad(); return; }
+  state.pins[id] = state.pins[id] || {};
+  if (n==='clear'){ state.pins[id][end] = null; closeKeypad(); render(); return; }
+  state.pins[id][end] = +n;
+  if (end==='t' && state.pins[id].b == null) openKeypad(id,'b');
+  else { closeKeypad(); render(); const g=document.querySelector(`[data-slot="${id}.${end}"]`); if(g) g.focus({preventScroll:true}); }
+});
+kp.addEventListener('keydown', e=>{ if (e.key==='Escape'){ closeKeypad(); } });
+document.addEventListener('pointerdown', e=>{ if (!kp.hidden && !kp.contains(e.target) && !e.target.closest('[data-slot]')) closeKeypad(); });
+window.addEventListener('scroll', closeKeypad, {passive:true});
+$('#schWrap').addEventListener('scroll', closeKeypad, {passive:true});
+window.addEventListener('resize', closeKeypad);
+
+/* ---------- 이벤트 ---------- */
+function connect(id){ wired.add(id); sel.wire = id; sel.fresh = id; if (sel.hint===id) sel.hint=null; }
+$('#sch').addEventListener('click', e=>{
+  const s = e.target.closest('[data-slot]');
+  if (s && state.mode==='pins'){ const [id,end] = s.dataset.slot.split('.'); openKeypad(id,end); return; }
+  const w = e.target.closest('[data-wire]');
+  if (w && state.mode==='wire'){
+    const id = w.dataset.wire;
+    if (!wired.has(id)) connect(id); else sel.wire = (sel.wire===id ? null : id);
+    render();
+  }
+});
+$('#sch').addEventListener('keydown', e=>{
+  const s = e.target.closest('[data-slot]');
+  if (s && (e.key==='Enter' || e.key===' ')){ e.preventDefault(); const [id,end]=s.dataset.slot.split('.'); openKeypad(id,end); }
+});
+$('#side').addEventListener('click', e=>{
+  const pw = e.target.closest('.pw');
+  if (pw){ sel.wire = (sel.wire===pw.dataset.wire ? null : pw.dataset.wire); render(); return; }
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  if (b.dataset.act==='unwire'){ wired.delete(sel.wire); render(); }
+  if (b.dataset.act==='wireit'){ connect(sel.wire); render(); }
+});
+$('#side').addEventListener('mouseover', e=>{
+  const li = e.target.closest('.ref li'); const card = e.target.closest('.ref'); if (!card) return;
+  card.querySelectorAll('.sock g').forEach(g=>g.classList.remove('hov'));
+  if (li){ const ps = li.dataset.pins.split(','); card.querySelectorAll('.sock g').forEach(g=>{ if (ps.includes(g.dataset.p)) g.classList.add('hl','hov'); }); }
+});
+$('#side').addEventListener('mouseout', e=>{
+  const li = e.target.closest('.ref li'); if (!li) return;
+  const card = li.closest('.ref'), id = sel.slot && EL[sel.slot.id].comp===card.dataset.ref ? sel.slot.id : null;
+  const keep = new Set(id ? EL[id].allow.flat().map(String) : []);
+  card.querySelectorAll('.sock g').forEach(g=>{ if (!keep.has(g.dataset.p)) g.classList.remove('hl'); });
+});
+$('#tools').addEventListener('click', e=>{
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const a = b.dataset.act;
+  if (a==='check'){ state.checked = true; const bad = EL_IDS.find(id=>ST[id]!=='ok'); render(); if (bad){ sel.slot={id:bad,end:'t'}; render(); } }
+  if (a==='answer'){ EL_IDS.forEach(id=>state.pins[id]={t:EL[id].def[0], b:EL[id].def[1]}); state.checked = true; sel.slot=null; render(); }
+  if (a==='clearpins'){ state.pins = {}; state.checked = false; sel.slot=null; closeKeypad(); render(); }
+  if (a==='next'){ const w = WIRES.find(x=>!wired.has(x.id)); sel.hint = w ? w.id : null; sel.wire = null; render(); }
+  if (a==='wireall'){ WIRES.forEach(w=>wired.add(w.id)); sel.hint=null; sel.wire=null; render(); }
+  if (a==='clearwires'){ wired.clear(); sel.hint=null; sel.wire=null; render(); }
+});
+document.querySelectorAll('.steps button').forEach(b=>b.addEventListener('click', ()=>{
+  state.mode = b.dataset.mode; closeKeypad(); sel.wire=null; sel.hint=null; render();
+}));
+render();
+</script>
+</body>
+</html>
