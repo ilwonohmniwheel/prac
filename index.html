@@ -179,6 +179,8 @@ button{font:inherit;color:inherit}
 #cfm[hidden]{display:none}
 #cfm p{margin:0 0 10px;font-size:14px;line-height:1.5}
 .cfm-row{display:flex;justify-content:flex-end;gap:6px}
+.btn kbd{font:600 11px/1 inherit;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:2px 4px;margin-left:4px;color:var(--ink-soft);background:var(--paper)}
+@media (hover:none){.btn kbd{display:none}}
 .tbtools{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 6px}
 .tbcard{border-left:4px solid var(--sel)}
 .tbans-bar{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 10px}
@@ -3955,6 +3957,18 @@ function tbSideIssues(){
     const side=cell.slice(0,3), g=GNODE[XGROUP[w[1]]];
     return g&&!ductPath(XNODE[side],g)?{f,cell,side}:null; }).filter(Boolean);
 }
+/* 선택한 선을 Delete·Backspace 키로 빼기 */
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Delete'&&e.key!=='Backspace') return;
+  if(e.ctrlKey||e.metaKey||e.altKey) return;
+  const t=document.activeElement; if(t&&(/INPUT|TEXTAREA|SELECT/.test(t.tagName)||t.isContentEditable)) return;
+  if(!cfm.hidden||!tbPop.hidden) return;
+  if(state.mode==='free'&&freeSel.wire!=null&&state.free[freeSel.wire]){
+    e.preventDefault(); state.free.splice(freeSel.wire,1); freeSel.wire=null; FRES=null; freeSel.msg=''; render();
+  } else if(state.mode==='ext'&&extSel.wire!=null&&state.ext[extSel.wire]){
+    e.preventDefault(); state.ext.splice(extSel.wire,1); extSel.wire=null; XRES=null; extSel.msg=''; render();
+  }
+});
 document.addEventListener('keydown',e=>{
   if(!(e.ctrlKey||e.metaKey)||e.key.toLowerCase()!=='z'||e.shiftKey) return;
   if(/INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
@@ -4108,12 +4122,12 @@ function renderSideFree(){
   if (freeSel.wire!=null && state.free[freeSel.wire]){
     const w=state.free[freeSel.wire];
     info=`<h4>${plabel(w.a)} ↔ ${plabel(w.b)}</h4><span class="chip">${FCOL_NAME[w.c]}</span>
-      <div class="row" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><button class="btn" data-act="funwire">이 선 빼기</button>${w.c!==state.fcol?`<button class="btn" data-act="frecolor">${FCOL_NAME[state.fcol]}으로 바꾸기</button>`:''}</div>`;
+      <div class="row" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><button class="btn" data-act="funwire">이 선 빼기 <kbd>Del</kbd></button>${w.c!==state.fcol?`<button class="btn" data-act="frecolor">${FCOL_NAME[state.fcol]}으로 바꾸기</button>`:''}</div>`;
   } else if (freeSel.pin){
     const n=state.free.filter(w=>w.a===freeSel.pin||w.b===freeSel.pin).length;
     info=`<h4>${plabel(freeSel.pin)} 선택됨</h4>${PIN[freeSel.pin].phys?`<button class="btn" data-tbcell="${freeSel.pin}" style="margin:2px 0 4px">이 단자 용도 바꾸기</button>`:''}<p>이어질 다른 단자를 누르세요. 같은 단자를 다시 누르면 취소돼요. 이 단자에는 ${n}/${FMAXPIN}가닥이 물려 있어요.</p>`;
   } else {
-    info=`<h4>단자를 눌러 배선을 시작하세요</h4><p>위에서 전선 색을 고르고, 단자 → 단자 순서로 누르면 배선로를 따라 선이 놓입니다. 놓인 선을 누르면 빼거나 색을 바꿀 수 있어요.</p>`;
+    info=`<h4>단자를 눌러 배선을 시작하세요</h4><p>위에서 전선 색을 고르고, 단자 → 단자 순서로 누르면 배선로를 따라 선이 놓입니다. 놓인 선을 누르면 빼거나 색을 바꿀 수 있어요. 선을 고른 뒤 Delete나 Backspace 키를 눌러도 빠져요.</p>`;
   }
   if (freeSel.msg) info+=`<p class="warn">${freeSel.msg}</p>`;
   let res='';
@@ -4359,10 +4373,10 @@ function renderSideExt(){
     const w=state.ext[extSel.wire], p=extPlan(w);
     const via=p.kind==='ext'?p.chain.map(id=>{ const d=DUCTS.find(x=>x.id===id); return `${circ(d.no)} ${d.from}→${d.to}`; }).join(', '):'기구함 안 점퍼';
     info=`<h4>${xlabel(w.a)} ↔ ${xlabel(w.b)}</h4><span class="chip">${FCOL_NAME[w.c]}</span><span class="chip">경로: ${via}</span>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><button class="btn" data-act="xunwire">이 선 빼기</button>${w.c!==state.fcol?`<button class="btn" data-act="xrecolor">${FCOL_NAME[state.fcol]}으로 바꾸기</button>`:''}</div>`;
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><button class="btn" data-act="xunwire">이 선 빼기 <kbd>Del</kbd></button>${w.c!==state.fcol?`<button class="btn" data-act="xrecolor">${FCOL_NAME[state.fcol]}으로 바꾸기</button>`:''}</div>`;
   } else if (extSel.pin){
     info=`<h4>${xlabel(extSel.pin)} 선택됨</h4><p>이어질 단자를 누르세요. 제어함 단자대와 기구함 단자를 고르면 배관을 따라 선이 들어가요. 같은 기구함 안의 두 단자를 고르면 점퍼가 돼요. 이 단자에는 ${xCount(extSel.pin)}/${FMAXPIN}가닥이 물려 있어요.</p>`;
-  } else info=`<h4>단자대와 기구를 이어 보세요</h4><p>아래 TB5·TB6 단자나 배치도의 단자를 누르고, 이어질 기구함·단자대(TB1~TB4) 단자를 누르세요. 선은 배관을 따라 자동으로 지나가고, 배관마다 들어간 가닥 수가 세어져요.</p>`;
+  } else info=`<h4>단자대와 기구를 이어 보세요</h4><p>아래 TB5·TB6 단자나 배치도의 단자를 누르고, 이어질 기구함·단자대(TB1~TB4) 단자를 누르세요. 선은 배관을 따라 자동으로 지나가고, 배관마다 들어간 가닥 수가 세어져요. 놓인 선을 눌러 고른 뒤 Delete나 Backspace 키를 누르면 빠져요.</p>`;
   if (extSel.msg) info+=`<p class="warn">${extSel.msg}</p>`;
   const uc=userDuctCounts();
   const dl=DUCTS.map(d=>{ const have=uc[d.id]||0, ok=have===d.wires.length;
