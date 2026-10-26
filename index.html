@@ -163,6 +163,9 @@ button{font:inherit;color:inherit}
 .zoomer{display:flex;gap:4px;align-items:center;font-size:12.5px;color:var(--ink-soft)}
 .zoomer .btn{padding:4px 10px}
 .zoomer .btn{white-space:nowrap}
+.pane-head{min-width:0;flex:1 1 220px}
+.pane-head h3{margin:0}
+.pane-desc{margin:4px 0 0;font-size:13px;line-height:1.5;color:var(--ink-soft);word-break:keep-all}
 .quick{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 10px;font-size:13px;color:var(--ink-soft)}
 .quick .btn{font-weight:600}
 .tbpick .cell.unset{background:var(--paper);border-style:dashed}
@@ -4172,7 +4175,7 @@ function renderSideFree(){
       ${good.length?`<details${bad.length?'':' open'}><summary>정상인 회로 ${good.length}개 보기</summary><ul class="nlist oks">${good.map(item).join('')}</ul></details>`:''}
       <p style="font-size:12.5px;color:var(--ink-soft);margin-top:10px">공통선을 어느 단자부터 건너 연결했는지는 상관없어요. 같은 점이어야 할 단자끼리 모두 이어져 있고, 다른 회로와 섞이지 않았는지를 봅니다.</p></div>`;
   }
-  $('#side').innerHTML=`<div class="pane-bar"><h3>제어함 직접 배선</h3>
+  $('#side').innerHTML=`<div class="pane-bar"><div class="pane-head"><h3>제어함 직접 배선</h3><p class="pane-desc">제어함의 단자 하나를 누르고, 이어질 다른 단자를 누르면 선이 연결됩니다.</p></div>
       <div class="zoomer"><button class="btn" data-act="fzout" aria-label="축소"${z===FZOOMS[0]?' disabled':''}>−</button><span>${Math.round(z*100)}%</span><button class="btn" data-act="fzin" aria-label="확대"${z===FZOOMS[FZOOMS.length-1]?' disabled':''}>+</button><button class="btn" data-act="big">${state.big?'나란히 보기':'크게 보기'}</button></div></div>
     <p class="palette-cap">전선 색</p><div class="palette">${pal}</div>
     <div class="quick"><button class="btn" data-act="fundo"${state.free.length?'':' disabled'}>되돌리기</button><span>${state.free.length?`방금 연결: ${plabel(state.free[state.free.length-1].a)} ↔ ${plabel(state.free[state.free.length-1].b)}`:'아직 연결한 선이 없어요.'}</span></div>
@@ -4422,7 +4425,7 @@ function renderSideExt(){
       ${bad2.length||dbad||ext?`<ul class="nlist">${bad2.map(item).join('')}${dbad}${ext}</ul>`:''}${empt.length?`<details><summary>아직 연결하지 않은 회로 ${empt.length}개 보기</summary><ul class="nlist">${empt.map(item).join('')}</ul></details>`:''}
       ${good.length?`<details${bad.length?'':' open'}><summary>정상인 회로 ${good.length}개 보기</summary><ul class="nlist oks">${good.map(item).join('')}</ul></details>`:''}</div>`;
   }
-  $('#side').innerHTML=`<div class="pane-bar"><h3>배관·단자대 배선</h3>
+  $('#side').innerHTML=`<div class="pane-bar"><div class="pane-head"><h3>배관·단자대 배선</h3><p class="pane-desc">단자를 하나 누르고 이어질 단자를 누르면 배관을 따라 선이 들어갑니다.</p></div>
       <div class="zoomer"><button class="btn" data-act="xzout" aria-label="배치도 축소"${z===XZOOMS[0]?' disabled':''}>−</button><span>${Math.round(z*100)}%</span><button class="btn" data-act="xzin" aria-label="배치도 확대"${z===XZOOMS[XZOOMS.length-1]?' disabled':''}>+</button><button class="btn" data-act="big">${state.big?'나란히 보기':'크게 보기'}</button></div></div>
     <p class="palette-cap">전선 색</p><div class="palette">${pal}</div>
     <div class="quick"><button class="btn" data-act="xundo"${state.ext.length?'':' disabled'}>되돌리기</button><span>${state.ext.length?`방금 연결: ${xlabel(state.ext[state.ext.length-1].a)} ↔ ${xlabel(state.ext[state.ext.length-1].b)}`:'아직 연결한 선이 없어요.'}</span></div>
@@ -4439,7 +4442,7 @@ function renderSideExt(){
 function renderExt(tools,st){
   tools.innerHTML=`<button class="btn primary" data-act="xgrade">채점하기</button><button class="btn" data-act="xundo"${state.ext.length?'':' disabled'}>되돌리기</button><button class="btn" data-act="xans" aria-pressed="${extSel.showAns}">모범 배선 겹쳐 보기</button><button class="btn" data-act="xclear">모두 지우기</button>`;
   if (XRES) st.innerHTML=XRES.perfect?`<span class="good">${XRES.score}점. 배관과 단자대 배선이 모두 맞았어요.</span>`:`<b>${XRES.score}점</b>, 회로 ${XRES.okN}/${XRES.nets.length}개, 배관 ${XRES.okD}/${XRES.ducts.length}개 정상.`;
-  else st.innerHTML=state.ext.length?`<b>${state.ext.length}가닥</b> 연결됨. 다 됐으면 채점하기를 누르세요.`:`단자를 하나 누르고 이어질 단자를 누르면 배관을 따라 선이 들어갑니다.`;
+  else st.innerHTML=state.ext.length?`<b>${state.ext.length}가닥</b> 연결됨. 다 됐으면 채점하기를 누르세요.`:'';
   renderExtLayout(); renderSideExt();
 }
 
