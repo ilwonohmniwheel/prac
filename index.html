@@ -4115,7 +4115,7 @@ function renderFree(tools,st){
   tools.innerHTML=`<button class="btn primary" data-act="fgrade">채점하기</button><button class="btn" data-act="fundo"${state.free.length?'':' disabled'}>되돌리기</button><button class="btn" data-act="fpins" aria-pressed="${state.fpins}">도면 핀번호</button><button class="btn" data-act="fans" aria-pressed="${freeSel.showAns}">모범 배선 겹쳐 보기</button><button class="btn" data-act="fclear">모두 지우기</button>`;
   if (FRES) st.innerHTML=FRES.perfect?`<span class="good">${FRES.score}점. 모든 회로가 도면대로 연결됐어요.</span>`
     :`<b>${FRES.score}점</b>, 회로 ${FRES.ok}/${FRES.nets.length}개 정상. 오른쪽 결과에서 빨간 항목을 눌러 위치를 확인하세요.`;
-  else st.innerHTML=state.free.length?`<b>${state.free.length}가닥</b> 연결됨. 다 됐으면 채점하기를 누르세요.`:`제어함의 단자 하나를 누르고, 이어질 다른 단자를 누르면 선이 연결됩니다.`;
+  else st.innerHTML=state.free.length?`<b>${state.free.length}가닥</b> 연결됨. 다 됐으면 채점하기를 누르세요.`;
   renderSchematic(); renderSideFree();
 }
 
