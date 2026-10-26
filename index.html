@@ -110,6 +110,8 @@ button{font:inherit;color:inherit}
 .w .hit{stroke:transparent;stroke-width:13;fill:none;stroke-linejoin:round}
 .mode-pins .w{pointer-events:none}
 .mode-free .w{pointer-events:none}
+#sch .pbtag{display:none}
+#sch .tag.pbtag{fill:#D0306A;font-weight:700}
 /* 4단계: 직접 배선 */
 .fwrap{overflow:auto;border-radius:6px;border:1px solid var(--line);background:var(--paper);max-height:80vh;-webkit-overflow-scrolling:touch}
 #fpanel{display:block;height:auto;touch-action:manipulation;user-select:none;-webkit-user-select:none}
@@ -253,6 +255,8 @@ button{font:inherit;color:inherit}
 .slot.ok rect{fill:var(--ok-bg);stroke:var(--ok);stroke-dasharray:none} .slot.ok text{fill:var(--ok)}
 .slot.bad rect{fill:var(--bad-bg);stroke:var(--bad);stroke-dasharray:none} .slot.bad text{fill:var(--bad)}
 .pinlbl{font-size:10.5px;font-weight:700;fill:#D0306A;text-anchor:middle}
+.kp-grid.opts{grid-template-columns:repeat(2,minmax(64px,1fr))!important}
+.kp-grid.opts button{font-size:14px;padding-left:6px;padding-right:6px}
 
 /* side cards */
 .card{border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:12px;background:var(--surface)}
@@ -1235,7 +1239,7 @@ const EL_C4 = {
 };
 const EL = Object.assign({}, EL_MAIN, ({1:EL_C1,2:EL_C2,3:EL_C3,4:EL_C4,5:EL_C5,6:EL_C6,7:EL_C7,8:EL_C8,9:EL_C9,10:EL_C10,11:EL_C11,12:EL_C12,13:EL_C13,14:EL_C14,15:EL_C15,16:EL_C16,17:EL_C17,18:EL_C18})[CUR_VAR]);
 const EL_IDS = Object.keys(EL);
-const TOTAL_SLOTS = EL_IDS.reduce((n,id)=>n+EL[id].ans.length,0);
+let TOTAL_SLOTS = EL_IDS.reduce((n,id)=>n+EL[id].ans.length,0);
 
 /* ================= 2단계: 배선 목록 =================
    도면의 선 1개 = 제어함 전선 1가닥. a/b는 제어함 단자 id */
@@ -3063,7 +3067,7 @@ function contact(x,y1,y2,type,o={}){
   const st=Math.min(10,(y2-y1)/4), t1=y1+st, t2=y2-st, my=(t1+t2)/2, isA=type==='a';
   const bx = isA ? x+7 : x-3.3, out = isA ? 1 : -1;
   let s=L(x,y1,x,t1)+L(x,t2,x,y2)+L(bx,t1-4,bx,t2+4);
-  if(o.pb) s+=L(bx,my,bx+8*out,my);
+  if(o.pb){ s+=L(bx,my,bx+8*out,my); if(o.label||o.pbn) symMark({k:'pb',id:o.label||o.pbn,x,y1,y2,type}); }
   if(o.timer) s+=`<path d="M${bx} ${my-6} L${bx+9*out} ${my} L${bx} ${my+6}"/>`;
   if(o.flicker) s+=`<path d="M${bx-8} ${my} L${bx} ${my-3.6} L${bx+8} ${my} L${bx} ${my+3.6} Z" style="fill:var(--ink)"/>`;
   if(o.eocr) s+=L(bx-5,my-5,bx+5,my+5)+L(bx-5,my+5,bx+5,my-5);
@@ -3089,7 +3093,10 @@ function mainContact(x,y1,y2,type,o={}){
 function coil(x,label,small){
   return L(x,444,x,444)+`<circle class="fillp" cx="${x}" cy="460" r="16"/>`+`<text class="lbl c${small?' sm':''}" x="${x}" y="${small?464:465}">${label}</text>`;
 }
+const EXTSYM=[];
+function symMark(o){ if(!EXTSYM.some(e=>e.k===o.k&&e.id===o.id)) EXTSYM.push(o); return ''; }
 function lamp(x,label){
+  symMark({k:'lamp',id:label,x});
   const d=11.3;
   return `<circle class="lamp${label}" cx="${x}" cy="460" r="16"/>`+L(x-d,460-d,x+d,460+d)+L(x-d,460+d,x+d,460-d)+T_(x+6,500,label,'lbl sm');
 }
@@ -3121,14 +3128,14 @@ function ctrlSymbols1(){
   s+=coil(EA,'FR');
   s+=contact(YLx,230,270,'a',{label:'FR',lx:20,flicker:1})+contact(BZx,230,270,'b',{label:'FR',lx:30,flicker:1});
   s+=lamp(YLx,'YL');
-  s+=`<rect class="fillp" x="${BZx-14}" y="444" width="28" height="32" rx="3"/>`+T_(BZx,465,'BZ','lbl c sm');
+  s+=`<rect class="fillp" x="${BZx-14}" y="444" width="28" height="32" rx="3"/>`+T_(BZx,465,'BZ','lbl c sm')+symMark({k:'bz',id:'BZ',x:BZx});
   s+=`<circle class="fillp" cx="${FLSx}" cy="410" r="18"/>`+T_(FLSx,414,'FLS','lbl c sm');
   [E1x,E2x,E3x].forEach((x,i)=>{ s+=`<rect class="fillp" x="${x-5}" y="505" width="10" height="10"/>`+T_(x,524,['E1','E2','E3'][i],'tag" text-anchor="middle'); });
   s+=T_(E1x-26,514,'TB4','tag');
   // SS · PB (외부 기구)
   s+=contact(S,60,95,'b')+contact(FC,60,95,'a')+L(S,60,FC,60)+L(FC+7,77.5,S-3.3,77.5,'dash')+L(FC+7,77.5,FC+13,77.5)+L(FC+13,73,FC+13,82)+T_(S+10,58,'SS','lbl sm')+T_(S+8,108,'M','tag')+T_(FC-14,108,'A','tag');
   s+=contact(S,120,160,'b',{pb:true,label:'PB0'})+contact(S,190,230,'a',{pb:true,label:'PB1'});
-  s+=T_(S-6,118,'NC L1','tag" text-anchor="end')+T_(S-6,168,'NC L2','tag" text-anchor="end')+T_(S-6,183,'NO L1','tag" text-anchor="end')+T_(S+6,244,'NO L2','tag');
+  s+=T_(S-6,118,'NC L1','tag pbtag" text-anchor="end')+T_(S-6,168,'NC L2','tag pbtag" text-anchor="end')+T_(S-6,183,'NO L1','tag pbtag" text-anchor="end')+T_(S+6,244,'NO L2','tag pbtag');
   s+=contact(TS,190,230,'a',{label:'T'});
   s+=contact(FC,230,270,'a',{label:'FLS'});
   s+=coil(FC,'X');
@@ -3148,13 +3155,13 @@ function ctrlSymbols2(){
   s+=contact(EA,110,150,'a',{label:'EOCR',eocr:1});
   s+=eocrTop();
   s+=lamp(EA,'YL');
-  s+=`<rect class="fillp" x="${BZx-14}" y="444" width="28" height="32" rx="3"/>`+T_(BZx,465,'BZ','lbl c sm');
+  s+=`<rect class="fillp" x="${BZx-14}" y="444" width="28" height="32" rx="3"/>`+T_(BZx,465,'BZ','lbl c sm')+symMark({k:'bz',id:'BZ',x:BZx});
   s+=`<circle class="fillp" cx="${FLSx}" cy="410" r="18"/>`+T_(FLSx,414,'FLS','lbl c sm');
   [E1x,E2x,E3x].forEach((x,i)=>{ s+=`<rect class="fillp" x="${x-5}" y="505" width="10" height="10"/>`+T_(x,524,['E1','E2','E3'][i],'tag" text-anchor="middle'); });
   s+=T_(E1x-26,514,'TB4','tag');
   s+=contact(S,60,95,'b')+contact(FC,60,95,'a')+L(S,60,FC,60)+L(FC+7,77.5,S-3.3,77.5,'dash')+L(FC+7,77.5,FC+13,77.5)+L(FC+13,73,FC+13,82)+T_(S+10,58,'SS','lbl sm')+T_(S+8,108,'M','tag')+T_(FC-14,108,'A','tag');
   s+=contact(S,120,160,'b',{pb:true,label:'PB0'})+contact(S,190,230,'a',{pb:true,label:'PB1'});
-  s+=T_(S-6,118,'NC L1','tag" text-anchor="end')+T_(S-6,168,'NC L2','tag" text-anchor="end')+T_(S-6,183,'NO L1','tag" text-anchor="end')+T_(S+6,244,'NO L2','tag');
+  s+=T_(S-6,118,'NC L1','tag pbtag" text-anchor="end')+T_(S-6,168,'NC L2','tag pbtag" text-anchor="end')+T_(S-6,183,'NO L1','tag pbtag" text-anchor="end')+T_(S+6,244,'NO L2','tag pbtag');
   s+=contact(TS,190,230,'a',{label:'T'});
   s+=contact(FC,230,270,'a',{label:'FLS'});
   s+=coil(FC,'X')+coil(S,'T');
@@ -3171,12 +3178,12 @@ function ctrlSymbols18(){
   let s='';
   s+=`<circle class="fillp" cx="${EP}" cy="460" r="16"/>`+T_(EP,463.5,'EOCR','lbl c" style="font-size:9.5px;letter-spacing:-.3px');
   s+=contact(EA,110,150,'a',{label:'EOCR',eocr:1})+eocrTop()+lamp(EA,'YL');
-  s+=L(465,43.3,PBq,43.3)+L(485,43.3,485,51)+L(480,51,490,51)+term(465,40)+term(PBq,40)+T_(485,16,'PB0','lbl c sm')+T_(465,34,'NC L1','tag" text-anchor="middle')+T_(PBq,34,'NC L2','tag" text-anchor="middle');
+  s+=L(465,43.3,PBq,43.3)+L(485,43.3,485,51)+L(480,51,490,51)+term(465,40)+term(PBq,40)+symMark({k:'pbh',id:'PB0',x1:465,x2:PBq})+T_(485,16,'PB0','lbl c sm')+T_(465,34,'NC L1','tag pbtag" text-anchor="middle')+T_(PBq,34,'NC L2','tag pbtag" text-anchor="middle');
   [[c1,'LS1','X1'],[c2,'LS2','X2']].forEach(([x,ls,xc])=>{ s+=contact(x,60,100,'a',{label:ls})+T_(x-12,66,'N','tag')+T_(x-12,108,'O','tag')+coil(x,xc,true); });
-  s+=contact(c3,60,100,'a',{pb:true,label:'PB1'})+T_(c3-6,66,'NO L1','tag" text-anchor="end')+T_(c3-6,108,'NO L2','tag" text-anchor="end')+contact(c4,60,100,'a',{label:'T1'});
+  s+=contact(c3,60,100,'a',{pb:true,label:'PB1'})+T_(c3-6,66,'NO L1','tag pbtag" text-anchor="end')+T_(c3-6,108,'NO L2','tag pbtag" text-anchor="end')+contact(c4,60,100,'a',{label:'T1'});
   s+=contact(c3,130,170,'a',{label:'X1'})+contact(c3,190,230,'b',{label:'X2'});
   s+=coil(c3,'MC1',true)+coil(c4,'T1',true)+contact(c5,70,110,'a',{label:'MC1'})+lamp(c5,'RL');
-  s+=contact(c6,60,100,'a',{pb:true,label:'PB2'})+T_(c6-6,66,'NO L1','tag" text-anchor="end')+T_(c6-6,108,'NO L2','tag" text-anchor="end')+contact(c7,60,100,'a',{label:'T2'});
+  s+=contact(c6,60,100,'a',{pb:true,label:'PB2'})+T_(c6-6,66,'NO L1','tag pbtag" text-anchor="end')+T_(c6-6,108,'NO L2','tag pbtag" text-anchor="end')+contact(c7,60,100,'a',{label:'T2'});
   s+=contact(c6,130,170,'b',{label:'X1'})+contact(c6,190,230,'a',{label:'X2'});
   s+=coil(c6,'MC2',true)+coil(c7,'T2',true)+contact(c8,70,110,'a',{label:'MC2'})+lamp(c8,'GL');
   s+=contact(c9,60,100,'a',{timer:true,label:'T1',lx:22})+contact(c10,60,100,'a',{timer:true,label:'T2',lx:22})+lamp(c9,'WL');
@@ -3187,12 +3194,12 @@ function ctrlSymbols17(){
   let s='';
   s+=`<circle class="fillp" cx="${EP}" cy="460" r="16"/>`+T_(EP,463.5,'EOCR','lbl c" style="font-size:9.5px;letter-spacing:-.3px');
   s+=contact(EA,110,150,'a',{label:'EOCR',eocr:1})+eocrTop()+lamp(EA,'YL');
-  s+=L(465,43.3,PBq,43.3)+L(485,43.3,485,51)+L(480,51,490,51)+term(465,40)+term(PBq,40)+T_(485,16,'PB0','lbl c sm')+T_(465,34,'NC L1','tag" text-anchor="middle')+T_(PBq,34,'NC L2','tag" text-anchor="middle');
+  s+=L(465,43.3,PBq,43.3)+L(485,43.3,485,51)+L(480,51,490,51)+term(465,40)+term(PBq,40)+symMark({k:'pbh',id:'PB0',x1:465,x2:PBq})+T_(485,16,'PB0','lbl c sm')+T_(465,34,'NC L1','tag pbtag" text-anchor="middle')+T_(PBq,34,'NC L2','tag pbtag" text-anchor="middle');
   [[c1,'LS1','X1'],[c2,'LS2','X2']].forEach(([x,ls,xc])=>{ s+=contact(x,60,100,'a',{label:ls})+T_(x-12,66,'N','tag')+T_(x-12,108,'O','tag')+coil(x,xc,true); });
-  s+=contact(c3,60,100,'a',{pb:true,label:'PB1'})+T_(c3-6,66,'NO L1','tag" text-anchor="end')+T_(c3-6,108,'NO L2','tag" text-anchor="end')+contact(c4,60,100,'a',{label:'T1'});
+  s+=contact(c3,60,100,'a',{pb:true,label:'PB1'})+T_(c3-6,66,'NO L1','tag pbtag" text-anchor="end')+T_(c3-6,108,'NO L2','tag pbtag" text-anchor="end')+contact(c4,60,100,'a',{label:'T1'});
   s+=contact(c3,160,200,'a',{label:'X1'})+contact(c3,220,260,'b',{label:'X2'})+contact(c4,160,200,'b',{label:'X1'})+contact(c4,220,260,'a',{label:'X2'});
   s+=coil(c3,'MC1',true)+coil(c4,'T1',true)+contact(c5,70,110,'a',{label:'MC1'})+lamp(c5,'RL');
-  s+=contact(c6,60,100,'a',{pb:true,label:'PB2'})+T_(c6-6,66,'NO L1','tag" text-anchor="end')+T_(c6-6,108,'NO L2','tag" text-anchor="end')+contact(c7,60,100,'a',{label:'T2'});
+  s+=contact(c6,60,100,'a',{pb:true,label:'PB2'})+T_(c6-6,66,'NO L1','tag pbtag" text-anchor="end')+T_(c6-6,108,'NO L2','tag pbtag" text-anchor="end')+contact(c7,60,100,'a',{label:'T2'});
   s+=contact(c6,160,200,'a',{timer:true,label:'T1',lx:22})+contact(c6,270,310,'b',{timer:true,label:'T2',lx:-34})+contact(c7,270,310,'a',{timer:true,label:'T2',lx:22});
   s+=coil(c6,'MC2',true)+lamp(c7,'WL')+coil(c8,'T2',true)+contact(c9,70,110,'a',{label:'MC2'})+lamp(c9,'GL');
   return s;
@@ -3202,11 +3209,11 @@ function ctrlSymbols16(){
   let s='';
   s+=`<circle class="fillp" cx="${EP}" cy="460" r="16"/>`+T_(EP,463.5,'EOCR','lbl c" style="font-size:9.5px;letter-spacing:-.3px');
   s+=contact(EA,110,150,'a',{label:'EOCR',eocr:1})+eocrTop()+lamp(EA,'YL');
-  s+=L(465,43.3,PBq,43.3)+L(485,43.3,485,51)+L(480,51,490,51)+term(465,40)+term(PBq,40)+T_(485,16,'PB0','lbl c sm')+T_(465,34,'NC L1','tag" text-anchor="middle')+T_(PBq,34,'NC L2','tag" text-anchor="middle');
+  s+=L(465,43.3,PBq,43.3)+L(485,43.3,485,51)+L(480,51,490,51)+term(465,40)+term(PBq,40)+symMark({k:'pbh',id:'PB0',x1:465,x2:PBq})+T_(485,16,'PB0','lbl c sm')+T_(465,34,'NC L1','tag pbtag" text-anchor="middle')+T_(PBq,34,'NC L2','tag pbtag" text-anchor="middle');
   [[c1,'LS1','T1'],[c2,'LS2','T2']].forEach(([x,ls,tc])=>{ s+=contact(x,60,100,'a',{label:ls})+T_(x-12,66,'N','tag')+T_(x-12,108,'O','tag')+coil(x,tc,true); });
-  s+=contact(c3,60,100,'a',{pb:true,label:'PB1'})+T_(c3-6,66,'NO L1','tag" text-anchor="end')+T_(c3-6,108,'NO L2','tag" text-anchor="end')+contact(c4,60,100,'a',{label:'X1'})+contact(c5,60,100,'a',{timer:true,label:'T1',lx:22});
+  s+=contact(c3,60,100,'a',{pb:true,label:'PB1'})+T_(c3-6,66,'NO L1','tag pbtag" text-anchor="end')+T_(c3-6,108,'NO L2','tag pbtag" text-anchor="end')+contact(c4,60,100,'a',{label:'X1'})+contact(c5,60,100,'a',{timer:true,label:'T1',lx:22});
   s+=coil(c3,'MC1',true)+coil(c4,'X1',true)+contact(c6,70,110,'a',{label:'MC1'})+lamp(c6,'RL');
-  s+=contact(c7,60,100,'a',{pb:true,label:'PB2'})+T_(c7-6,66,'NO L1','tag" text-anchor="end')+T_(c7-6,108,'NO L2','tag" text-anchor="end')+contact(c8,60,100,'a',{label:'X2'})+contact(c9,60,100,'a',{label:'T2'});
+  s+=contact(c7,60,100,'a',{pb:true,label:'PB2'})+T_(c7-6,66,'NO L1','tag pbtag" text-anchor="end')+T_(c7-6,108,'NO L2','tag pbtag" text-anchor="end')+contact(c8,60,100,'a',{label:'X2'})+contact(c9,60,100,'a',{label:'T2'});
   s+=contact(c7,170,210,'a',{label:'T1'})+contact(c7,280,320,'b',{timer:true,label:'T2',lx:-34})+contact(c8,280,320,'a',{timer:true,label:'T2',lx:22});
   s+=coil(c7,'MC2',true)+lamp(c8,'WL')+coil(c9,'X2',true)+contact(c10,70,110,'a',{label:'MC2'})+lamp(c10,'GL');
   return s;
@@ -3216,12 +3223,12 @@ function ctrlSymbols15(){
   let s='';
   s+=`<circle class="fillp" cx="${EP}" cy="460" r="16"/>`+T_(EP,463.5,'EOCR','lbl c" style="font-size:9.5px;letter-spacing:-.3px');
   s+=contact(EA,110,150,'a',{label:'EOCR',eocr:1})+eocrTop()+lamp(EA,'YL');
-  s+=L(465,43.3,PBq,43.3)+L(485,43.3,485,51)+L(480,51,490,51)+term(465,40)+term(PBq,40)+T_(485,16,'PB0','lbl c sm')+T_(465,34,'NC L1','tag" text-anchor="middle')+T_(PBq,34,'NC L2','tag" text-anchor="middle');
+  s+=L(465,43.3,PBq,43.3)+L(485,43.3,485,51)+L(480,51,490,51)+term(465,40)+term(PBq,40)+symMark({k:'pbh',id:'PB0',x1:465,x2:PBq})+T_(485,16,'PB0','lbl c sm')+T_(465,34,'NC L1','tag pbtag" text-anchor="middle')+T_(PBq,34,'NC L2','tag pbtag" text-anchor="middle');
   [[c1,'LS1','X1'],[c2,'LS2','X2']].forEach(([x,ls,xc])=>{ s+=contact(x,60,100,'a',{label:ls})+T_(x-12,66,'N','tag')+T_(x-12,108,'O','tag')+coil(x,xc,true); });
-  s+=contact(c3,60,100,'a',{pb:true,label:'PB1'})+T_(c3-6,66,'NO L1','tag" text-anchor="end')+T_(c3-6,108,'NO L2','tag" text-anchor="end')+contact(c4,60,100,'a',{label:'T1'});
+  s+=contact(c3,60,100,'a',{pb:true,label:'PB1'})+T_(c3-6,66,'NO L1','tag pbtag" text-anchor="end')+T_(c3-6,108,'NO L2','tag pbtag" text-anchor="end')+contact(c4,60,100,'a',{label:'T1'});
   s+=contact(c3,150,190,'a',{label:'X1'})+contact(cb,150,190,'a',{label:'X2'})+contact(c3,250,290,'b',{timer:true,label:'T1',lx:30});
   s+=coil(c3,'MC1',true)+coil(c4,'T1',true)+contact(c5,70,110,'a',{label:'MC1'})+lamp(c5,'RL');
-  s+=contact(c6,60,100,'a',{pb:true,label:'PB2'})+T_(c6-6,66,'NO L1','tag" text-anchor="end')+T_(c6-6,108,'NO L2','tag" text-anchor="end')+contact(c7,60,100,'a',{label:'T2'});
+  s+=contact(c6,60,100,'a',{pb:true,label:'PB2'})+T_(c6-6,66,'NO L1','tag pbtag" text-anchor="end')+T_(c6-6,108,'NO L2','tag pbtag" text-anchor="end')+contact(c7,60,100,'a',{label:'T2'});
   s+=contact(c6,130,170,'a',{label:'X1'})+contact(c6,190,230,'a',{label:'X2'})+contact(c6,280,320,'b',{timer:true,label:'T2',lx:30});
   s+=coil(c6,'MC2',true)+coil(c7,'T2',true)+contact(c8,70,110,'a',{label:'MC2'})+lamp(c8,'GL');
   s+=contact(c9,60,100,'b',{label:'MC1'})+contact(c9,130,170,'b',{label:'MC2'})+lamp(c9,'WL');
@@ -3232,12 +3239,12 @@ function ctrlSymbols14(){
   let s='';
   s+=`<circle class="fillp" cx="${EP}" cy="460" r="16"/>`+T_(EP,463.5,'EOCR','lbl c" style="font-size:9.5px;letter-spacing:-.3px');
   s+=contact(EA,110,150,'a',{label:'EOCR',eocr:1})+eocrTop()+lamp(EA,'YL');
-  s+=L(465,43.3,PBq,43.3)+L(485,43.3,485,51)+L(480,51,490,51)+term(465,40)+term(PBq,40)+T_(485,16,'PB0','lbl c sm')+T_(465,34,'NC L1','tag" text-anchor="middle')+T_(PBq,34,'NC L2','tag" text-anchor="middle');
+  s+=L(465,43.3,PBq,43.3)+L(485,43.3,485,51)+L(480,51,490,51)+term(465,40)+term(PBq,40)+symMark({k:'pbh',id:'PB0',x1:465,x2:PBq})+T_(485,16,'PB0','lbl c sm')+T_(465,34,'NC L1','tag pbtag" text-anchor="middle')+T_(PBq,34,'NC L2','tag pbtag" text-anchor="middle');
   [[c1,'LS1','X1'],[c2,'LS2','X2']].forEach(([x,ls,xc])=>{ s+=contact(x,60,100,'a',{label:ls})+T_(x-12,66,'N','tag')+T_(x-12,108,'O','tag')+coil(x,xc,true); });
-  s+=contact(c3,60,100,'a',{pb:true,label:'PB1'})+T_(c3-6,66,'NO L1','tag" text-anchor="end')+T_(c3-6,108,'NO L2','tag" text-anchor="end')+contact(c4,60,100,'a',{label:'T1'});
+  s+=contact(c3,60,100,'a',{pb:true,label:'PB1'})+T_(c3-6,66,'NO L1','tag pbtag" text-anchor="end')+T_(c3-6,108,'NO L2','tag pbtag" text-anchor="end')+contact(c4,60,100,'a',{label:'T1'});
   s+=contact(c3,150,190,'a',{label:'X1'})+contact(c3,210,250,'a',{label:'X2'})+contact(c3,270,310,'b',{timer:true,label:'T1',lx:30});
   s+=coil(c3,'MC1',true)+coil(c4,'T1',true)+contact(c5,70,110,'a',{label:'MC1'})+lamp(c5,'RL');
-  s+=contact(c6,60,100,'a',{pb:true,label:'PB2'})+T_(c6-6,66,'NO L1','tag" text-anchor="end')+T_(c6-6,108,'NO L2','tag" text-anchor="end')+contact(c7,60,100,'a',{label:'T2'});
+  s+=contact(c6,60,100,'a',{pb:true,label:'PB2'})+T_(c6-6,66,'NO L1','tag pbtag" text-anchor="end')+T_(c6-6,108,'NO L2','tag pbtag" text-anchor="end')+contact(c7,60,100,'a',{label:'T2'});
   s+=contact(c6,160,200,'a',{label:'X1'})+contact(c7,160,200,'a',{label:'X2'})+contact(c6,270,310,'b',{timer:true,label:'T2',lx:30});
   s+=coil(c6,'MC2',true)+coil(c7,'T2',true)+contact(c8,70,110,'a',{label:'MC2'})+lamp(c8,'GL');
   s+=contact(c9,60,100,'b',{label:'MC1'})+contact(c9,130,170,'b',{label:'MC2'})+lamp(c9,'WL');
@@ -3247,9 +3254,9 @@ function ctrlSymbols13(){
   let s='';
   s+=`<circle class="fillp" cx="${EP}" cy="460" r="16"/>`+T_(EP,463.5,'EOCR','lbl c" style="font-size:9.5px;letter-spacing:-.3px');
   s+=contact(EA,110,150,'a',{label:'EOCR',eocr:1})+eocrTop()+lamp(EA,'YL');
-  s+=L(465,43.3,PBq,43.3)+L(485,43.3,485,51)+L(480,51,490,51)+term(465,40)+term(PBq,40)+T_(485,16,'PB0','lbl c sm')+T_(465,34,'NC L1','tag" text-anchor="middle')+T_(PBq,34,'NC L2','tag" text-anchor="middle');
+  s+=L(465,43.3,PBq,43.3)+L(485,43.3,485,51)+L(480,51,490,51)+term(465,40)+term(PBq,40)+symMark({k:'pbh',id:'PB0',x1:465,x2:PBq})+T_(485,16,'PB0','lbl c sm')+T_(465,34,'NC L1','tag pbtag" text-anchor="middle')+T_(PBq,34,'NC L2','tag pbtag" text-anchor="middle');
   const [a,b,c,d,e,f]=G;
-  [[a,1],[d,2]].forEach(([x,n])=>{ s+=contact(x,60,100,'a',{pb:true})+T_(x-6,66,'NO L1','tag" text-anchor="end')+T_(x-6,108,'NO L2','tag" text-anchor="end')+T_(x-50,n===1?85:53,'PB'+n,'lbl sm'); });
+  [[a,1],[d,2]].forEach(([x,n])=>{ s+=contact(x,60,100,'a',{pb:true,pbn:'PB'+n})+T_(x-6,66,'NO L1','tag pbtag" text-anchor="end')+T_(x-6,108,'NO L2','tag pbtag" text-anchor="end')+T_(x-66,n===1?85:53,'PB'+n,'lbl sm'); });
   s+=contact(b,60,100,'a',{label:'X1'})+contact(c,60,100,'a',{label:'LS1'})+T_(c-12,66,'N','tag')+T_(c-12,108,'O','tag');
   s+=contact(a,160,200,'b',{timer:true,label:'T2',lx:30});
   s+=contact(e,60,100,'a',{label:'X2'})+contact(f,60,100,'a',{timer:true,label:'T1',lx:22});
@@ -3264,9 +3271,9 @@ function ctrlSymbols12(){
   let s='';
   s+=`<circle class="fillp" cx="${EP}" cy="460" r="16"/>`+T_(EP,463.5,'EOCR','lbl c" style="font-size:9.5px;letter-spacing:-.3px');
   s+=contact(EA,110,150,'a',{label:'EOCR',eocr:1})+eocrTop()+lamp(EA,'YL');
-  s+=L(465,43.3,PBq,43.3)+L(485,43.3,485,51)+L(480,51,490,51)+term(465,40)+term(PBq,40)+T_(485,16,'PB0','lbl c sm')+T_(465,34,'NC L1','tag" text-anchor="middle')+T_(PBq,34,'NC L2','tag" text-anchor="middle');
+  s+=L(465,43.3,PBq,43.3)+L(485,43.3,485,51)+L(480,51,490,51)+term(465,40)+term(PBq,40)+symMark({k:'pbh',id:'PB0',x1:465,x2:PBq})+T_(485,16,'PB0','lbl c sm')+T_(465,34,'NC L1','tag pbtag" text-anchor="middle')+T_(PBq,34,'NC L2','tag pbtag" text-anchor="middle');
   const [a,b,c,d,e,f]=G;
-  [[a,1],[d,2]].forEach(([x,n])=>{ s+=contact(x,60,100,'a',{pb:true})+T_(x-6,66,'NO L1','tag" text-anchor="end')+T_(x-6,108,'NO L2','tag" text-anchor="end')+T_(x-50,n===1?85:53,'PB'+n,'lbl sm'); });
+  [[a,1],[d,2]].forEach(([x,n])=>{ s+=contact(x,60,100,'a',{pb:true,pbn:'PB'+n})+T_(x-6,66,'NO L1','tag pbtag" text-anchor="end')+T_(x-6,108,'NO L2','tag pbtag" text-anchor="end')+T_(x-66,n===1?85:53,'PB'+n,'lbl sm'); });
   s+=contact(b,60,100,'a',{label:'X1'})+contact(c,60,100,'a',{timer:true,label:'T2',lx:22});
   s+=contact(e,60,100,'a',{label:'X2'})+contact(f,60,100,'a',{timer:true,label:'T1',lx:22});
   s+=coil(a,'X1',true)+contact(b,260,300,'a',{label:'LS1',lx:-44})+T_(b-12,258,'N','tag')+T_(b-12,312,'O','tag')+coil(b,'MC1',true)+contact(c,260,300,'b',{label:'MC1'})+coil(c,'T1',true);
@@ -3280,9 +3287,9 @@ function ctrlSymbols11(){
   let s='';
   s+=`<circle class="fillp" cx="${EP}" cy="460" r="16"/>`+T_(EP,463.5,'EOCR','lbl c" style="font-size:9.5px;letter-spacing:-.3px');
   s+=contact(EA,110,150,'a',{label:'EOCR',eocr:1})+eocrTop()+lamp(EA,'YL');
-  s+=L(465,43.3,PBq,43.3)+L(485,43.3,485,51)+L(480,51,490,51)+term(465,40)+term(PBq,40)+T_(485,16,'PB0','lbl c sm')+T_(465,34,'NC L1','tag" text-anchor="middle')+T_(PBq,34,'NC L2','tag" text-anchor="middle');
+  s+=L(465,43.3,PBq,43.3)+L(485,43.3,485,51)+L(480,51,490,51)+term(465,40)+term(PBq,40)+symMark({k:'pbh',id:'PB0',x1:465,x2:PBq})+T_(485,16,'PB0','lbl c sm')+T_(465,34,'NC L1','tag pbtag" text-anchor="middle')+T_(PBq,34,'NC L2','tag pbtag" text-anchor="middle');
   [[1,2,0],[2,1,3]].forEach(([n,m,k])=>{ const a=G[k],b=G[k+1],c=G[k+2];
-    s+=contact(a,60,100,'a',{pb:true})+T_(a-6,66,'NO L1','tag" text-anchor="end')+T_(a-6,108,'NO L2','tag" text-anchor="end')+T_(a-50,85,'PB'+n,'lbl sm');
+    s+=contact(a,60,100,'a',{pb:true,pbn:'PB'+n})+T_(a-6,66,'NO L1','tag pbtag" text-anchor="end')+T_(a-6,108,'NO L2','tag pbtag" text-anchor="end')+T_(a-66,85,'PB'+n,'lbl sm');
     s+=contact(b,60,100,'a',{timer:true,label:'T'+n,lx:22})+coil(a,'X'+n,true);
     s+=contact(b,260,300,'a',{label:'LS'+n,lx:-44})+T_(b-12,258,'N','tag')+T_(b-12,312,'O','tag')+coil(b,'MC'+n,true);
     s+=contact(c,260,300,'b',{label:'X'+m})+coil(c,'T'+n,true); });
@@ -3296,9 +3303,9 @@ function ctrlSymbols10(){
   let s='';
   s+=`<circle class="fillp" cx="${EP}" cy="460" r="16"/>`+T_(EP,463.5,'EOCR','lbl c" style="font-size:9.5px;letter-spacing:-.3px');
   s+=contact(EA,110,150,'a',{label:'EOCR',eocr:1})+eocrTop()+lamp(EA,'YL');
-  s+=L(465,43.3,PBq,43.3)+L(485,43.3,485,51)+L(480,51,490,51)+term(465,40)+term(PBq,40)+T_(485,16,'PB0','lbl c sm')+T_(465,34,'NC L1','tag" text-anchor="middle')+T_(PBq,34,'NC L2','tag" text-anchor="middle');
+  s+=L(465,43.3,PBq,43.3)+L(485,43.3,485,51)+L(480,51,490,51)+term(465,40)+term(PBq,40)+symMark({k:'pbh',id:'PB0',x1:465,x2:PBq})+T_(485,16,'PB0','lbl c sm')+T_(465,34,'NC L1','tag pbtag" text-anchor="middle')+T_(PBq,34,'NC L2','tag pbtag" text-anchor="middle');
   [[1,0],[2,3]].forEach(([n,k])=>{ const a=G[k],b=G[k+1],c=G[k+2];
-    s+=contact(a,60,100,'a',{pb:true})+T_(a-6,66,'NO L1','tag" text-anchor="end')+T_(a-6,108,'NO L2','tag" text-anchor="end')+T_(a-50,85,'PB'+n,'lbl sm');
+    s+=contact(a,60,100,'a',{pb:true,pbn:'PB'+n})+T_(a-6,66,'NO L1','tag pbtag" text-anchor="end')+T_(a-6,108,'NO L2','tag pbtag" text-anchor="end')+T_(a-66,85,'PB'+n,'lbl sm');
     s+=contact(b,60,100,'a',{label:'X'+n})+coil(a,'X'+n,true);
     s+=contact(b,260,300,'a',{label:'LS'+n,lx:-44})+T_(b-12,258,'N','tag')+T_(b-12,312,'O','tag')+coil(b,'T'+n,true);
     s+=contact(c,260,300,'a',{timer:true,label:'T'+n,lx:22})+coil(c,'MC'+n,true); });
@@ -3313,7 +3320,7 @@ function ctrlSymbols9(){
   s+=`<circle class="fillp" cx="${EP}" cy="460" r="16"/>`+T_(EP,463.5,'EOCR','lbl c" style="font-size:9.5px;letter-spacing:-.3px');
   s+=contact(EA,110,150,'a',{label:'EOCR',eocr:1})+eocrTop()+coil(EA,'FR');
   s+=contact(YLx,230,270,'b',{label:'FR',lx:15,flicker:1})+contact(BZx,230,270,'a',{label:'FR',lx:20,flicker:1});
-  s+=lamp(YLx,'YL')+`<rect class="fillp" x="${BZx-14}" y="444" width="28" height="32" rx="3"/>`+T_(BZx,465,'BZ','lbl c sm');
+  s+=lamp(YLx,'YL')+`<rect class="fillp" x="${BZx-14}" y="444" width="28" height="32" rx="3"/>`+T_(BZx,465,'BZ','lbl c sm')+symMark({k:'bz',id:'BZ',x:BZx});
   s+=contact(XA,60,100,'a',{label:'X'});
   s+=contact(FC,60,95,'a')+contact(S,60,95,'b')+L(FC+7,77.5,S-3.3,77.5,'dash')+L(FC+7,77.5,FC+13,77.5)+L(FC+13,73,FC+13,82)+T_(S+10,58,'SS','lbl sm')+T_(FC-14,108,'A','tag')+T_(S+8,108,'M','tag');
   s+=contact(FC,230,270,'a',{label:'FLS'})+coil(FC,'MC1',true);
@@ -3321,7 +3328,7 @@ function ctrlSymbols9(){
   [E1x,E2x,E3x].forEach((x,i)=>{ s+=`<rect class="fillp" x="${x-5}" y="505" width="10" height="10"/>`+T_(x,524,['E1','E2','E3'][i],'tag" text-anchor="middle'); });
   s+=T_(E1x-26,514,'TB4','tag');
   s+=contact(S,120,160,'b',{pb:true,label:'PB0'})+contact(S,190,230,'a',{pb:true,label:'PB1'});
-  s+=T_(S-6,118,'NC L1','tag" text-anchor="end')+T_(S-6,168,'NC L2','tag" text-anchor="end')+T_(S-6,183,'NO L1','tag" text-anchor="end')+T_(S+6,244,'NO L2','tag');
+  s+=T_(S-6,118,'NC L1','tag pbtag" text-anchor="end')+T_(S-6,168,'NC L2','tag pbtag" text-anchor="end')+T_(S-6,183,'NO L1','tag pbtag" text-anchor="end')+T_(S+6,244,'NO L2','tag pbtag');
   s+=contact(TS,190,230,'a',{label:'X'})+coil(S,'X')+coil(TS,'T');
   s+=contact(TH,70,110,'a',{timer:true,label:'T',lx:20})+coil(TH,'MC2',true);
   s+=contact(RLx,70,110,'a',{label:'MC1'})+contact(GLx,70,110,'a',{label:'MC2'});
@@ -3332,7 +3339,7 @@ function ctrlSymbols8(){
   let s='';
   s+=`<circle class="fillp" cx="${EP}" cy="460" r="16"/>`+T_(EP,463.5,'EOCR','lbl c" style="font-size:9.5px;letter-spacing:-.3px');
   s+=contact(EA,110,150,'a',{label:'EOCR',eocr:1})+eocrTop();
-  s+=`<rect class="fillp" x="${EA-14}" y="444" width="28" height="32" rx="3"/>`+T_(EA,465,'BZ','lbl c sm');
+  s+=`<rect class="fillp" x="${EA-14}" y="444" width="28" height="32" rx="3"/>`+T_(EA,465,'BZ','lbl c sm')+symMark({k:'bz',id:'BZ',x:EA});
   s+=`<circle class="fillp" cx="${FLSx}" cy="410" r="18"/>`+T_(FLSx,414,'FLS','lbl c sm');
   [E1x,E2x,E3x].forEach((x,i)=>{ s+=`<rect class="fillp" x="${x-5}" y="505" width="10" height="10"/>`+T_(x,524,['E1','E2','E3'][i],'tag" text-anchor="middle'); });
   s+=T_(E1x-26,514,'TB4','tag');
@@ -3340,7 +3347,7 @@ function ctrlSymbols8(){
   s+=contact(FC,230,270,'a',{label:'FLS'})+coil(FC,'X')+coil(FRc8,'FR');
   s+=contact(YLx,330,370,'b',{label:'FR',lx:30,flicker:1})+lamp(YLx,'YL');
   s+=contact(S,120,160,'b',{pb:true,label:'PB0'})+contact(S,190,230,'a',{pb:true,label:'PB1'});
-  s+=T_(S-6,118,'NC L1','tag" text-anchor="end')+T_(S-6,168,'NC L2','tag" text-anchor="end')+T_(S-6,183,'NO L1','tag" text-anchor="end')+T_(S+6,244,'NO L2','tag');
+  s+=T_(S-6,118,'NC L1','tag pbtag" text-anchor="end')+T_(S-6,168,'NC L2','tag pbtag" text-anchor="end')+T_(S-6,183,'NO L1','tag pbtag" text-anchor="end')+T_(S+6,244,'NO L2','tag pbtag');
   s+=contact(TS,190,230,'a',{label:'T'})+contact(S,290,330,'b',{label:'X'})+coil(S,'T');
   s+=contact(XA,60,100,'a',{label:'X'})+contact(TH,230,270,'b',{timer:true,label:'T',lx:-30});
   s+=coil(XA,'MC1',true)+coil(TH,'MC2',true);
@@ -3353,14 +3360,14 @@ function ctrlSymbols7(){
   s+=`<circle class="fillp" cx="${EP}" cy="460" r="16"/>`+T_(EP,463.5,'EOCR','lbl c" style="font-size:9.5px;letter-spacing:-.3px');
   s+=contact(EA,110,150,'a',{label:'EOCR',eocr:1})+eocrTop();
   s+=lamp(EA,'YL');
-  s+=`<rect class="fillp" x="${BZx-14}" y="444" width="28" height="32" rx="3"/>`+T_(BZx,465,'BZ','lbl c sm');
+  s+=`<rect class="fillp" x="${BZx-14}" y="444" width="28" height="32" rx="3"/>`+T_(BZx,465,'BZ','lbl c sm')+symMark({k:'bz',id:'BZ',x:BZx});
   s+=`<circle class="fillp" cx="${FLSx}" cy="410" r="18"/>`+T_(FLSx,414,'FLS','lbl c sm');
   [E1x,E2x,E3x].forEach((x,i)=>{ s+=`<rect class="fillp" x="${x-5}" y="505" width="10" height="10"/>`+T_(x,524,['E1','E2','E3'][i],'tag" text-anchor="middle'); });
   s+=T_(E1x-26,514,'TB4','tag');
   s+=contact(FC,60,95,'a')+contact(S,60,95,'b')+L(FC+7,77.5,S-3.3,77.5,'dash')+L(FC+7,77.5,FC+13,77.5)+L(FC+13,73,FC+13,82)+T_(S+10,58,'SS','lbl sm')+T_(FC-14,108,'A','tag')+T_(S+8,108,'M','tag');
   s+=contact(FC,230,270,'a',{label:'FLS'})+coil(FC,'FR');
   s+=contact(S,120,160,'b',{pb:true,label:'PB0'})+contact(S,190,230,'a',{pb:true,label:'PB1'});
-  s+=T_(S-6,118,'NC L1','tag" text-anchor="end')+T_(S-6,168,'NC L2','tag" text-anchor="end')+T_(S-6,183,'NO L1','tag" text-anchor="end')+T_(S+6,244,'NO L2','tag');
+  s+=T_(S-6,118,'NC L1','tag pbtag" text-anchor="end')+T_(S-6,168,'NC L2','tag pbtag" text-anchor="end')+T_(S-6,183,'NO L1','tag pbtag" text-anchor="end')+T_(S+6,244,'NO L2','tag pbtag');
   s+=contact(TS,190,230,'a',{label:'X'})+coil(S,'X');
   s+=contact(XA,60,100,'a',{label:'X'})+contact(XA,150,190,'b',{label:'FR',lx:30,flicker:1})+coil(XA,'T');
   s+=contact(M1,330,370,'b',{timer:true,label:'T',lx:-30})+contact(TH,330,370,'a',{timer:true,label:'T',lx:22});
@@ -3374,14 +3381,14 @@ function ctrlSymbols6(){
   s+=`<circle class="fillp" cx="${EP}" cy="460" r="16"/>`+T_(EP,463.5,'EOCR','lbl c" style="font-size:9.5px;letter-spacing:-.3px');
   s+=contact(EA,110,150,'a',{label:'EOCR',eocr:1})+eocrTop();
   s+=lamp(EA,'YL');
-  s+=`<rect class="fillp" x="${BZx-14}" y="444" width="28" height="32" rx="3"/>`+T_(BZx,465,'BZ','lbl c sm');
+  s+=`<rect class="fillp" x="${BZx-14}" y="444" width="28" height="32" rx="3"/>`+T_(BZx,465,'BZ','lbl c sm')+symMark({k:'bz',id:'BZ',x:BZx});
   s+=`<circle class="fillp" cx="${FLSx}" cy="410" r="18"/>`+T_(FLSx,414,'FLS','lbl c sm');
   [E1x,E2x,E3x].forEach((x,i)=>{ s+=`<rect class="fillp" x="${x-5}" y="505" width="10" height="10"/>`+T_(x,524,['E1','E2','E3'][i],'tag" text-anchor="middle'); });
   s+=T_(E1x-26,514,'TB4','tag');
   s+=contact(FLSx,60,95,'a')+contact(S,60,95,'b')+L(FLSx+7,77.5,S-3.3,77.5,'dash')+L(FLSx+7,77.5,FLSx+13,77.5)+L(FLSx+13,73,FLSx+13,82)+T_(S+10,58,'SS','lbl sm')+T_(FLSx-14,108,'A','tag')+T_(S+8,108,'M','tag');
   s+=contact(FC,230,270,'a',{label:'FLS'})+coil(FC,'X');
   s+=contact(S,120,160,'b',{pb:true,label:'PB0'})+contact(S,190,230,'a',{pb:true,label:'PB1'});
-  s+=T_(S-6,118,'NC L1','tag" text-anchor="end')+T_(S-6,168,'NC L2','tag" text-anchor="end')+T_(S-6,183,'NO L1','tag" text-anchor="end')+T_(S+6,244,'NO L2','tag');
+  s+=T_(S-6,118,'NC L1','tag pbtag" text-anchor="end')+T_(S-6,168,'NC L2','tag pbtag" text-anchor="end')+T_(S-6,183,'NO L1','tag pbtag" text-anchor="end')+T_(S+6,244,'NO L2','tag pbtag');
   s+=contact(TS,190,230,'a',{label:'T'})+contact(S,290,330,'b',{label:'X'})+coil(S,'T');
   s+=contact(XA,60,100,'a',{label:'X'})+contact(XA,330,370,'a',{timer:true,label:'T',lx:22})+coil(XA,'FR');
   s+=contact(M1,330,370,'b',{label:'FR',lx:30,flicker:1})+coil(M1,'MC1',true)+lamp(RLx,'RL');
@@ -3394,14 +3401,14 @@ function ctrlSymbols5(){
   s+=`<circle class="fillp" cx="${EP}" cy="460" r="16"/>`+T_(EP,463.5,'EOCR','lbl c" style="font-size:9.5px;letter-spacing:-.3px');
   s+=contact(EA,110,150,'a',{label:'EOCR',eocr:1})+eocrTop();
   s+=lamp(EA,'YL');
-  s+=`<rect class="fillp" x="${BZx-14}" y="444" width="28" height="32" rx="3"/>`+T_(BZx,465,'BZ','lbl c sm');
+  s+=`<rect class="fillp" x="${BZx-14}" y="444" width="28" height="32" rx="3"/>`+T_(BZx,465,'BZ','lbl c sm')+symMark({k:'bz',id:'BZ',x:BZx});
   s+=`<circle class="fillp" cx="${FLSx}" cy="410" r="18"/>`+T_(FLSx,414,'FLS','lbl c sm');
   [E1x,E2x,E3x].forEach((x,i)=>{ s+=`<rect class="fillp" x="${x-5}" y="505" width="10" height="10"/>`+T_(x,524,['E1','E2','E3'][i],'tag" text-anchor="middle'); });
   s+=T_(E1x-26,514,'TB4','tag');
   s+=contact(FLSx,60,95,'a')+contact(S,60,95,'b')+L(FLSx+7,77.5,S-3.3,77.5,'dash')+L(FLSx+7,77.5,FLSx+13,77.5)+L(FLSx+13,73,FLSx+13,82)+T_(S+10,58,'SS','lbl sm')+T_(FLSx-14,108,'A','tag')+T_(S+8,108,'M','tag');
   s+=contact(FC,230,270,'a',{label:'FLS'})+coil(FC,'X')+coil(TCx,'T');
   s+=contact(S,120,160,'b',{pb:true,label:'PB0'})+contact(S,190,230,'a',{pb:true,label:'PB1'});
-  s+=T_(S-6,118,'NC L1','tag" text-anchor="end')+T_(S-6,168,'NC L2','tag" text-anchor="end')+T_(S-6,183,'NO L1','tag" text-anchor="end')+T_(S+6,244,'NO L2','tag');
+  s+=T_(S-6,118,'NC L1','tag pbtag" text-anchor="end')+T_(S-6,168,'NC L2','tag pbtag" text-anchor="end')+T_(S-6,183,'NO L1','tag pbtag" text-anchor="end')+T_(S+6,244,'NO L2','tag pbtag');
   s+=contact(TS,190,230,'a',{label:'X'});
   s+=contact(FRc,330,370,'b',{timer:true,label:'T',lx:26})+coil(FRc,'FR');
   s+=contact(M1,330,370,'b',{label:'FR',lx:15,flicker:1})+contact(TH,330,370,'a',{label:'FR',lx:18,flicker:1});
@@ -3416,14 +3423,14 @@ function ctrlSymbols4(){
   s+=`<circle class="fillp" cx="${EP}" cy="460" r="16"/>`+T_(EP,463.5,'EOCR','lbl c" style="font-size:9.5px;letter-spacing:-.3px');
   s+=contact(EA,110,150,'a',{label:'EOCR',eocr:1})+eocrTop();
   s+=lamp(EA,'YL');
-  s+=`<rect class="fillp" x="${BZx-14}" y="444" width="28" height="32" rx="3"/>`+T_(BZx,465,'BZ','lbl c sm');
+  s+=`<rect class="fillp" x="${BZx-14}" y="444" width="28" height="32" rx="3"/>`+T_(BZx,465,'BZ','lbl c sm')+symMark({k:'bz',id:'BZ',x:BZx});
   s+=`<circle class="fillp" cx="${FLSx}" cy="410" r="18"/>`+T_(FLSx,414,'FLS','lbl c sm');
   [E1x,E2x,E3x].forEach((x,i)=>{ s+=`<rect class="fillp" x="${x-5}" y="505" width="10" height="10"/>`+T_(x,524,['E1','E2','E3'][i],'tag" text-anchor="middle'); });
   s+=T_(E1x-26,514,'TB4','tag');
   s+=contact(FC,60,95,'a')+contact(S,60,95,'b')+L(FC+7,77.5,S-3.3,77.5,'dash')+L(FC+7,77.5,FC+13,77.5)+L(FC+13,73,FC+13,82)+T_(S+10,58,'SS','lbl sm')+T_(FC-14,108,'A','tag')+T_(S+8,108,'M','tag');
   s+=contact(FC,230,270,'a',{label:'FLS'})+coil(FC,'FR');
   s+=contact(S,120,160,'b',{pb:true,label:'PB0'})+contact(S,190,230,'a',{pb:true,label:'PB1'});
-  s+=T_(S-6,118,'NC L1','tag" text-anchor="end')+T_(S-6,168,'NC L2','tag" text-anchor="end')+T_(S-6,183,'NO L1','tag" text-anchor="end')+T_(S+6,244,'NO L2','tag');
+  s+=T_(S-6,118,'NC L1','tag pbtag" text-anchor="end')+T_(S-6,168,'NC L2','tag pbtag" text-anchor="end')+T_(S-6,183,'NO L1','tag pbtag" text-anchor="end')+T_(S+6,244,'NO L2','tag pbtag');
   s+=contact(TS,190,230,'a',{label:'X'})+coil(S,'X');
   s+=contact(XA,60,100,'a',{label:'X'});
   s+=contact(XA,230,270,'b',{label:'FR',lx:-32,flicker:1})+contact(TH,230,270,'a',{label:'FR',lx:20,flicker:1});
@@ -3438,7 +3445,7 @@ function ctrlSymbols3(){
   s+=`<circle class="fillp" cx="${EP}" cy="460" r="16"/>`+T_(EP,463.5,'EOCR','lbl c" style="font-size:9.5px;letter-spacing:-.3px');
   s+=contact(EA,110,150,'a',{label:'EOCR',eocr:1})+eocrTop();
   s+=lamp(EA,'YL');
-  s+=`<rect class="fillp" x="${BZx-14}" y="444" width="28" height="32" rx="3"/>`+T_(BZx,465,'BZ','lbl c sm');
+  s+=`<rect class="fillp" x="${BZx-14}" y="444" width="28" height="32" rx="3"/>`+T_(BZx,465,'BZ','lbl c sm')+symMark({k:'bz',id:'BZ',x:BZx});
   s+=contact(F2,60,100,'a',{label:'X'});
   s+=contact(FC,60,95,'a')+contact(S,60,95,'b')+L(FC+7,77.5,S-3.3,77.5,'dash')+L(FC+7,77.5,FC+13,77.5)+L(FC+13,73,FC+13,82)+T_(S+10,58,'SS','lbl sm')+T_(FC-14,108,'A','tag')+T_(S+8,108,'M','tag');
   s+=contact(FC,230,270,'a',{label:'FLS'})+coil(FC,'FR');
@@ -3448,7 +3455,7 @@ function ctrlSymbols3(){
   [E1x,E2x,E3x].forEach((x,i)=>{ s+=`<rect class="fillp" x="${x-5}" y="505" width="10" height="10"/>`+T_(x,524,['E1','E2','E3'][i],'tag" text-anchor="middle'); });
   s+=T_(E1x-26,514,'TB4','tag');
   s+=contact(S,120,160,'b',{pb:true,label:'PB0'})+contact(S,190,230,'a',{pb:true,label:'PB1'});
-  s+=T_(S-6,118,'NC L1','tag" text-anchor="end')+T_(S-6,168,'NC L2','tag" text-anchor="end')+T_(S-6,183,'NO L1','tag" text-anchor="end')+T_(S+6,244,'NO L2','tag');
+  s+=T_(S-6,118,'NC L1','tag pbtag" text-anchor="end')+T_(S-6,168,'NC L2','tag pbtag" text-anchor="end')+T_(S-6,183,'NO L1','tag pbtag" text-anchor="end')+T_(S+6,244,'NO L2','tag pbtag');
   s+=contact(TS,190,230,'a',{label:'T'})+contact(TS,290,330,'a',{timer:true,label:'T',lx:22});
   s+=coil(S,'T')+coil(TS,'X');
   s+=contact(RLx,70,110,'a',{label:'MC1'})+contact(GLx,70,110,'a',{label:'MC2'});
@@ -3456,6 +3463,22 @@ function ctrlSymbols3(){
   return s;
 }
 const SYMBOLS=buildSymbols();
+/* 램프·부저 전원(L1·L2)과 푸시버튼 단자(NO/NC L1·L2)도 1단계에서 직접 적도록 칸 추가 */
+(function(){
+  const PBO=['NO L1','NO L2','NC L1','NC L2'], LO=['L1','L2'];
+  const HL='램프·부저는 전원 단자가 L1, L2 두 개예요. 접점을 거쳐 전원이 들어오는 쪽이 L1, 공통선으로 나가는 쪽이 L2예요.';
+  const HP='푸시버튼은 기호를 보고 a접점(NO)인지 b접점(NC)인지 먼저 고르고, 전원이 들어오는 쪽을 L1, 나가는 쪽을 L2로 적으세요.';
+  EXTSYM.forEach(e=>{
+    let id, d;
+    if(e.k==='lamp') { id='LP_'+e.id; d={comp:e.id,name:`${e.id} 램프 전원`,ans:['L1','L2'],opts:LO,w:22,hint:HL,slots:C(e.x)}; }
+    else if(e.k==='bz') { id='BZ_P'; d={comp:'BZ',name:'BZ 부저 전원',ans:['L1','L2'],opts:LO,w:22,hint:HL,slots:C(e.x)}; }
+    else if(e.k==='pb') { const nc=e.type==='b'; id='PB_'+e.id; d={comp:e.id,name:`${e.id} 푸시버튼 단자`,ans:nc?['NC L1','NC L2']:['NO L1','NO L2'],opts:PBO,w:31,hint:HP,lend:true,slots:[[e.x-21,e.y1+8],[e.x-21,e.y2-8]]}; }
+    else if(e.k==='pbh') { id='PB_PB0'; d={comp:'PB0',name:'PB0 푸시버튼 단자',ans:['NC L1','NC L2'],opts:PBO,w:31,hint:HP,slots:[[e.x1,30],[e.x2,30]]}; }
+    if(!id||EL[id]) return;
+    d.exact=true; EL[id]=d; EL_IDS.push(id);
+  });
+  TOTAL_SLOTS=EL_IDS.reduce((n,id)=>n+EL[id].ans.length,0);
+})();
 const EXT= [14,15,16,17,18].includes(CUR_VAR) ? '' : CUR_VAR>=10 ? `<path class="ext" d="M${PBq} 40 H${G[0]} V60"/>` : `<path class="ext" d="M${S} 160 V190"/>`;
 const JUNCTIONS_1=[[40,110],[120,128],[40,205],[80,215],[120,225],[160,300],[EP,40],[EA,40],[S,40],[XA,40],[RLx,40],[EA,200],[YLx,200],[FC,170],[S,175],[S,260],[TS,260],[XA,260],[M1,260],
   [EP,530],[EA,530],[YLx,530],[BZx,530],[FLSx,530],[FC,530],[S,530],[M1,530],[TH,530],[RLx,530]];
@@ -3497,7 +3520,7 @@ const JUNCTIONS=({1:JUNCTIONS_1,2:JUNCTIONS_2,3:JUNCTIONS_3,4:JUNCTIONS_4,5:JUNC
 function slotsSVG(id){
   const e=EL[id], w=e.w||18;
   return e.slots.map(([cx,cy],i)=>{
-    if (state.mode==='wire' || (state.mode==='free' && state.fpins)) return `<text class="pinlbl" x="${cx}" y="${cy+4}">${e.ans[i]}</text>`;
+    if (state.mode==='wire' || (state.mode==='free' && state.fpins)) return e.lend?`<text class="pinlbl" x="${cx+e.w/2-1}" y="${cy+4}" style="text-anchor:end">${e.ans[i]}</text>`:`<text class="pinlbl" x="${cx}" y="${cy+4}">${e.ans[i]}</text>`;
     if (state.mode==='free') return '';
     const u=(state.pins[id]||[])[i];
     let c='slot';
@@ -3507,7 +3530,7 @@ function slotsSVG(id){
   }).join('');
 }
 function renderSchematic(){
-  const svg=$('#sch'); svg.setAttribute('class','mode-'+state.mode); svg.setAttribute('viewBox',`0 0 ${SCH_W} 560`);
+  const svg=$('#sch'); svg.setAttribute('class','mode-'+state.mode+(state.mode==='free'&&!state.fpins?' nopins':'')); svg.setAttribute('viewBox',`0 0 ${SCH_W} 560`);
   let s=`<defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="var(--grid)" stroke-width="1"/></pattern></defs><rect width="${SCH_W}" height="560" fill="url(#grid)"/>`;
   s+=WIRES.map(w=>{
     let c='w t-'+w.type;
@@ -3523,6 +3546,7 @@ function renderSchematic(){
 
 /* ================= 렌더링: 1단계 오른쪽 ================= */
 function hintFor(id){
+  if (EL[id].hint) return EL[id].hint;
   const e=EL[id], r=REF[REF_OF[e.comp]];
   if (id==='FLS_E') return 'FLS 내부결선도에서 전극 E1, E2, E3에 해당하는 핀을 차례로 적으세요. 칸은 왼쪽부터 E1, E2, E3 순서예요.';
   const set=[...e.ans].sort((a,b)=>a-b).join();
@@ -3796,7 +3820,7 @@ function openKeypad(id,i){
   const g=document.querySelector(`[data-slot="${id}:${i}"]`);
   const e=EL[id], max=COMP_MAX[e.comp], cur=(state.pins[id]||[])[i];
   kp.innerHTML=`<div class="kp-head">${e.name}<span>${i+1}/${e.ans.length}번째</span></div>
-    <div class="kp-grid">${Array.from({length:max},(_,k)=>`<button data-n="${k+1}"${cur===k+1?' style="border-color:var(--sel)"':''}>${k+1}</button>`).join('')}</div>
+    <div class="kp-grid${e.opts?' opts':''}">${(e.opts||Array.from({length:max},(_,k)=>k+1)).map(v=>`<button data-n="${v}"${cur===v?' style="border-color:var(--sel)"':''}>${v}</button>`).join('')}</div>
     <div class="kp-foot"><button data-n="clear">비우기</button><button data-n="close">닫기</button></div>`;
   kp.hidden=false;
   if (g){ const r=g.getBoundingClientRect(), w=kp.offsetWidth, h=kp.offsetHeight;
@@ -3811,7 +3835,7 @@ kp.addEventListener('click',e=>{
   if (n==='close'){ closeKeypad(); return; }
   const arr=state.pins[id]=(state.pins[id]||[]).slice(); while(arr.length<EL[id].ans.length) arr.push(null);
   if (n==='clear'){ arr[i]=null; closeKeypad(); render(); return; }
-  arr[i]=+n;
+  arr[i]=EL[id].opts?n:+n;
   const next=arr.findIndex((v,k)=>k>i && v==null);
   if (next>=0) openKeypad(id,next);
   else { closeKeypad(); render(); const g=document.querySelector(`[data-slot="${id}:${i}"]`); if(g) g.focus({preventScroll:true}); }
@@ -3845,7 +3869,8 @@ const TBN=20;
 const TBFUNC=[];
 [['TB5',TB5],['TB6',TB6]].forEach(([s,arr])=>arr.forEach(c=>{ if(c) TBFUNC.push({id:s+'-'+c[2],name:c[0],sub:c[1]||''}); }));
 const TBF=Object.fromEntries(TBFUNC.map(f=>[f.id,f]));
-TBFUNC.forEach(f=>{ const w=EXTW.find(w=>w[0]===f.id); f.to=w?`${w[1].split('-')[0]} ${LT[w[1]][2]}`:'제어함 안';
+const LSLBL=id=>{ const m=id.match(/^TB4-(LS\d)([NO])$/); return m?`TB4 ${m[1]} ${m[2]}`:null; };
+TBFUNC.forEach(f=>{ const w=EXTW.find(w=>w[0]===f.id); f.to=w?(LSLBL(w[1])||`${w[1].split('-')[0]} ${LT[w[1]][2]}`):'제어함 안';
   if(w&&PB_TERM[w[1]]){ f.sub=PB_TERM[w[1]]; if(f.name!=='공통') f.name=w[1].split('-')[0]; } });
 const fLabel=f=>`${f.name}${f.sub?' '+f.sub:''}`;
 const isTBf=id=>/^TB[56]-/.test(id);
@@ -4115,7 +4140,7 @@ function renderFree(tools,st){
   tools.innerHTML=`<button class="btn primary" data-act="fgrade">채점하기</button><button class="btn" data-act="fundo"${state.free.length?'':' disabled'}>되돌리기</button><button class="btn" data-act="fpins" aria-pressed="${state.fpins}">도면 핀번호</button><button class="btn" data-act="fans" aria-pressed="${freeSel.showAns}">모범 배선 겹쳐 보기</button><button class="btn" data-act="fclear">모두 지우기</button>`;
   if (FRES) st.innerHTML=FRES.perfect?`<span class="good">${FRES.score}점. 모든 회로가 도면대로 연결됐어요.</span>`
     :`<b>${FRES.score}점</b>, 회로 ${FRES.ok}/${FRES.nets.length}개 정상. 오른쪽 결과에서 빨간 항목을 눌러 위치를 확인하세요.`;
-  else st.innerHTML=state.free.length?`<b>${state.free.length}가닥</b> 연결됨. 다 됐으면 채점하기를 누르세요.`;
+  else st.innerHTML=state.free.length?`<b>${state.free.length}가닥</b> 연결됨. 다 됐으면 채점하기를 누르세요.`:'';
   renderSchematic(); renderSideFree();
 }
 
@@ -4229,7 +4254,7 @@ const XNODE={TB5:'제어함 TB5',TB6:'제어함 TB6'};
 const XGROUP={};
 LCFG.boxes.forEach((b,i)=>b[4].forEach(id=>XGROUP[id]='B'+i));
 Object.keys(LT).forEach(id=>{ if(!tbSide(id) && !XGROUP[id]) XGROUP[id]=id.split('-')[0]; });
-const xlabel=id=>{ if(isTBf(id)) return PIN[id].label; if(LT[id]&&id.includes('#')) return cellLabel(id); return `${id.split('-')[0]} ${LT[id][2]}`; };
+const xlabel=id=>{ if(isTBf(id)) return PIN[id].label; if(LT[id]&&id.includes('#')) return cellLabel(id); return LSLBL(id)||`${id.split('-')[0]} ${LT[id][2]}`; };
 /* 배관 그래프 */
 const DADJ={};
 DUCTS.forEach(d=>{ (DADJ[d.from]=DADJ[d.from]||[]).push([d.to,d.id]); (DADJ[d.to]=DADJ[d.to]||[]).push([d.from,d.id]); });
